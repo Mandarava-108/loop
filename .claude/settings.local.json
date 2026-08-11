@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:64376)",
+      "Bash(curl -s http://localhost:64376)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'Scaffold: hello-world page, Supabase client helpers, env template *)"
+    ]
+  }
+}
