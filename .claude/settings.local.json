@@ -29,7 +29,13 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://loop-nine-liart.vercel.app/)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://loop-nine-liart.vercel.app/t/demotest)",
       "Bash(curl -s https://loop-nine-liart.vercel.app/t/demotest)",
-      "Bash(git commit -m 'Researcher dashboard: auth, test list, editor with task reordering, share links *)"
+      "Bash(git commit -m 'Researcher dashboard: auth, test list, editor with task reordering, share links *)",
+      "Bash(curl -s -I -m 15 \"https://garchen-archive-admin-staging-lbsje.ondigitalocean.app/events/player-test-history-of-the-copper-colored-mountain-gyaling-horn-melody-single-session-event/history-of-the-copper-colored-mountain-gyaling-horn-melody?interpretation=1&interpreter_language=en&interpreter_mode=with_interpreter&transcript_languages=bo,en\")",
+      "Bash(curl -s http://localhost:50157/api/frame-check?url=https%3A%2F%2Fexample.com)",
+      "Bash(curl -s http://localhost:50157/api/frame-check?url=https%3A%2F%2Fgithub.com)",
+      "Bash(curl -s http://localhost:50157/api/frame-check?url=https%3A%2F%2Fgarchen-archive-admin-staging-lbsje.ondigitalocean.app%2Fevents)",
+      "Bash(curl -s http://localhost:50157/api/frame-check?url=https%3A%2F%2Fthis-domain-does-not-exist-xyz123.com)",
+      "Bash(git commit -m 'Block-detection warning, responses table grouped by session, CSV export *)"
     ]
   }
 }

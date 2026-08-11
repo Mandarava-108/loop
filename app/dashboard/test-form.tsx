@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -55,6 +55,38 @@ export default function TestForm({
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [frameWarning, setFrameWarning] = useState<
+    "blocked" | "unreachable" | null
+  >(null);
+
+  // Iframe block-detection: check embeddability whenever the URL settles.
+  useEffect(() => {
+    const raw = siteUrl.trim();
+    if (raw.length < 4 || !raw.includes(".")) {
+      setFrameWarning(null);
+      return;
+    }
+    const url = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/frame-check?url=${encodeURIComponent(url)}`,
+          { signal: controller.signal }
+        );
+        const { blocked } = await res.json();
+        setFrameWarning(
+          blocked === true ? "blocked" : blocked === null ? "unreachable" : null
+        );
+      } catch {
+        // Check itself failed (aborted / offline) — don't warn.
+      }
+    }, 800);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [siteUrl]);
 
   function updateTask(key: string, patch: Partial<EditorTask>) {
     setTasks((ts) => ts.map((t) => (t.key === key ? { ...t, ...patch } : t)));
@@ -176,6 +208,32 @@ export default function TestForm({
               className={inputCls}
             />
           </label>
+
+          {frameWarning && (
+            <div
+              role="status"
+              className="rounded-[10px] border border-[#8a6d1f] bg-[rgba(240,180,41,0.08)] px-4 py-3 text-sm leading-relaxed text-[#E8C468]"
+            >
+              {frameWarning === "blocked" ? (
+                <>
+                  <strong>This site blocks embedding.</strong> Ask your team to
+                  allow this app&apos;s domain in{" "}
+                  <code className="font-mono text-[0.85em]">
+                    frame-ancestors
+                  </code>
+                  , or test a staging URL. You can still save the test — the
+                  site just won&apos;t render for participants until embedding
+                  is allowed.
+                </>
+              ) : (
+                <>
+                  <strong>Couldn&apos;t reach this URL.</strong> Check the
+                  address — participants may see an empty frame. You can still
+                  save the test.
+                </>
+              )}
+            </div>
+          )}
         </div>
 
         <h2 className="mt-10 mb-4 text-base font-semibold">
