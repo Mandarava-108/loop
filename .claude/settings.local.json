@@ -5,7 +5,27 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:64376)",
       "Bash(curl -s http://localhost:64376)",
       "Bash(git add *)",
-      "Bash(git commit -m 'Scaffold: hello-world page, Supabase client helpers, env template *)"
+      "Bash(git commit -m 'Scaffold: hello-world page, Supabase client helpers, env template *)",
+      "Bash(git remote *)",
+      "Bash(git push *)",
+      "Bash(command -v gh)",
+      "Bash(command -v brew)",
+      "Bash(brew --version)",
+      "Bash(ls ~/.ssh/*.pub 2>/dev/null || echo \"no ssh keys\")",
+      "Bash(ssh-keygen -t ed25519 -C \"irina.samkova@gmail.com\" -f ~/.ssh/id_ed25519 -N \"\" -q)",
+      "Bash(GIT_SSH_COMMAND=\"ssh -o StrictHostKeyChecking=accept-new\" git push -u origin main)",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\\\\n\" \"https://oqisnjggirhhueqzjntq.supabase.co/rest/v1/tests?select=id&limit=1\" -H \"apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX\")",
+      "Bash(curl -s -w '  HTTP %{http_code}\\\\n' https://oqisnjggirhhueqzjntq.supabase.co/rest/v1/tests?select=id -H 'apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX')",
+      "Bash(curl -s -w '  HTTP %{http_code}\\\\n' https://oqisnjggirhhueqzjntq.supabase.co/rest/v1/tasks?select=id -H 'apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX')",
+      "Bash(curl -s -w '  HTTP %{http_code}\\\\n' https://oqisnjggirhhueqzjntq.supabase.co/rest/v1/responses?select=id -H 'apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX')",
+      "Bash(curl -s -w '  HTTP %{http_code}\\\\n' -X POST https://oqisnjggirhhueqzjntq.supabase.co/rest/v1/tests -H 'apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX' -H 'Content-Type: application/json' -d '{\"title\":\"hack\",\"site_url\":\"https://x.com\"}')",
+      "Bash(curl -s -w '  HTTP %{http_code}\\\\n' -X POST https://oqisnjggirhhueqzjntq.supabase.co/rest/v1/responses -H 'apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX' -H 'Content-Type: application/json' -d '{\"test_id\":\"zzzzzzzz\",\"session_id\":\"00000000-0000-0000-0000-000000000000\",\"task_id\":\"00000000-0000-0000-0000-000000000000\",\"answer\":\"x\",\"started_at\":\"2026-08-11T12:00:00Z\"}')",
+      "Bash(git commit -m 'Supabase schema: tests/tasks/responses with RLS policies *)",
+      "Bash(curl -s https://oqisnjggirhhueqzjntq.supabase.co/rest/v1/tests?select=id,title,site_url -H 'apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX')",
+      "Bash(curl -s 'https://oqisnjggirhhueqzjntq.supabase.co/rest/v1/tasks?select=test_id,sort_order,type,prompt&order=sort_order' -H 'apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX')",
+      "Bash(curl -s 'https://oqisnjggirhhueqzjntq.supabase.co/rest/v1/tasks?select=sort_order,type,prompt&order=sort_order' -H 'apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX')",
+      "Bash(npm run *)",
+      "Bash(git commit -m 'Participant runner: port prototype to /t/[testId], wired to Supabase *)"
     ]
   }
 }

@@ -1,0 +1,148 @@
+/* Participant runner — ported from usability-test-prototype.html.
+   All selectors scoped under .runner; class names kept identical to the
+   prototype so the two can be diffed. */
+
+.runner {
+  --chrome-bg: #14161b;
+  --chrome-raised: #1d2027;
+  --chrome-border: #2b2f38;
+  --ink: #edeff3;
+  --ink-dim: #9aa1ad;
+  --accent: #7c6ff0;
+  --accent-soft: rgba(124, 111, 240, 0.16);
+  --ok: #4ecf9a;
+  --panel-w: 340px;
+  --sheet-collapsed: 64px;
+
+  display: flex;
+  height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--chrome-bg);
+  color: var(--ink);
+}
+
+/* ---------- site pane ---------- */
+.runner .site-pane { flex: 1; position: relative; background: #fff; }
+.runner .site-pane iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+.runner .session-bar {
+  position: absolute; top: 0; left: 0; right: 0; height: 40px;
+  display: flex; align-items: center; gap: 10px; padding: 0 14px;
+  background: linear-gradient(to bottom, rgba(20, 22, 27, 0.92), rgba(20, 22, 27, 0.78));
+  color: var(--ink-dim); font-size: 0.78rem; letter-spacing: 0.02em;
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+}
+.runner .rec-dot { width: 8px; height: 8px; border-radius: 50%; background: #f0605a; animation: runner-pulse 1.6s infinite; }
+@keyframes runner-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+.runner .session-bar .url { margin-left: auto; font-family: ui-monospace, monospace; opacity: 0.8; }
+
+/* ---------- task panel (shared) ---------- */
+.runner .panel {
+  background: var(--chrome-bg);
+  display: flex; flex-direction: column;
+  border-left: 1px solid var(--chrome-border);
+  width: var(--panel-w); flex: none;
+}
+.runner .panel-head { padding: 18px 20px 14px; border-bottom: 1px solid var(--chrome-border); }
+.runner .brand { display: flex; align-items: center; gap: 8px; font-weight: 650; font-size: 0.95rem; letter-spacing: 0.01em; }
+.runner .brand-mark { width: 18px; height: 18px; border-radius: 50%; border: 3px solid var(--accent); border-right-color: transparent; transform: rotate(-45deg); }
+.runner .progress-wrap { margin-top: 14px; }
+.runner .progress-label { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--ink-dim); margin-bottom: 6px; }
+.runner .progress-track { height: 4px; background: var(--chrome-border); border-radius: 2px; overflow: hidden; }
+.runner .progress-fill { height: 100%; width: 0%; background: var(--accent); border-radius: 2px; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
+.runner .panel-body { flex: 1; overflow-y: auto; padding: 20px; }
+.runner .task-eyebrow { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); font-weight: 650; margin-bottom: 8px; }
+.runner .task-title { font-size: 1.06rem; font-weight: 650; line-height: 1.35; margin-bottom: 8px; }
+.runner .task-desc { font-size: 0.88rem; line-height: 1.55; color: var(--ink-dim); margin-bottom: 20px; }
+
+.runner .answer label { display: block; font-size: 0.8rem; color: var(--ink-dim); margin-bottom: 8px; }
+.runner textarea {
+  width: 100%; min-height: 88px; resize: vertical;
+  background: var(--chrome-raised); border: 1px solid var(--chrome-border);
+  border-radius: 10px; color: var(--ink); padding: 12px; font: inherit; font-size: 0.88rem; line-height: 1.5;
+}
+.runner textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+
+.runner .scale { display: flex; gap: 8px; margin-top: 4px; }
+.runner .scale button {
+  flex: 1; height: 44px; border-radius: 10px; border: 1px solid var(--chrome-border);
+  background: var(--chrome-raised); color: var(--ink); font: inherit; font-size: 0.95rem; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.runner .scale button:hover { border-color: var(--accent); }
+.runner .scale button[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: #fff; }
+.runner .scale-ends { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--ink-dim); margin-top: 6px; }
+
+.runner .panel-foot { padding: 16px 20px; border-top: 1px solid var(--chrome-border); }
+.runner .btn {
+  width: 100%; height: 46px; border: 0; border-radius: 11px; cursor: pointer;
+  background: var(--accent); color: #fff; font: inherit; font-size: 0.92rem; font-weight: 600;
+  transition: filter 0.15s;
+}
+.runner .btn:hover { filter: brightness(1.1); }
+.runner .btn:disabled { opacity: 0.4; cursor: default; filter: none; }
+.runner .btn.ghost { background: transparent; color: var(--ink-dim); height: auto; margin-top: 8px; font-weight: 500; font-size: 0.8rem; }
+.runner .btn.ghost:hover { color: var(--ink); }
+
+.runner .save-error { margin-top: 10px; font-size: 0.78rem; line-height: 1.4; color: #f0605a; text-align: center; }
+
+.runner .done { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 28px 8px; }
+.runner .done-ring { width: 56px; height: 56px; border-radius: 50%; background: rgba(78, 207, 154, 0.14); display: grid; place-items: center; margin-bottom: 16px; }
+.runner .done-ring svg { width: 26px; height: 26px; stroke: var(--ok); stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.runner .done h2 { font-size: 1.05rem; margin-bottom: 6px; }
+.runner .done p { font-size: 0.85rem; color: var(--ink-dim); line-height: 1.5; }
+
+/* drag handle + collapse toggle: hidden on desktop */
+.runner .sheet-grip { display: none; }
+
+/* ---------- mobile: bottom sheet ---------- */
+@media (max-width: 768px) {
+  .runner { flex-direction: column; }
+  .runner .panel {
+    width: 100%; border-left: 0; border-top: 1px solid var(--chrome-border);
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.45);
+    height: var(--sheet-collapsed);
+    transition: height 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .runner .panel.expanded { height: min(72dvh, 540px); }
+  .runner .site-pane { padding-bottom: var(--sheet-collapsed); }
+
+  .runner .sheet-grip {
+    display: flex; flex-direction: column; align-items: stretch;
+    cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
+    border: 0; background: none; color: inherit; font: inherit; text-align: left; width: 100%;
+    padding: 8px 18px 10px;
+  }
+  .runner .grip-bar { width: 38px; height: 4px; border-radius: 2px; background: var(--chrome-border); margin: 0 auto 10px; }
+  .runner .grip-row { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .runner .grip-step {
+    flex: none; font-size: 0.7rem; font-weight: 700; color: var(--accent);
+    background: var(--accent-soft); border-radius: 6px; padding: 3px 7px; letter-spacing: 0.04em;
+  }
+  .runner .grip-title { flex: 1; font-size: 0.86rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .runner .grip-chev { flex: none; transition: transform 0.3s; }
+  .runner .grip-chev svg { width: 16px; height: 16px; stroke: var(--ink-dim); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; display: block; }
+  .runner .panel.expanded .grip-chev { transform: rotate(180deg); }
+
+  .runner .panel-head { display: none; }
+  .runner .panel-body { opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+  .runner .panel-foot { opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+  .runner .panel.expanded .panel-body,
+  .runner .panel.expanded .panel-foot { opacity: 1; pointer-events: auto; transition-delay: 0.12s; }
+
+  .runner .m-progress { height: 3px; background: var(--chrome-border); border-radius: 2px; overflow: hidden; margin-top: 10px; }
+  .runner .m-progress div { height: 100%; background: var(--accent); width: 0%; transition: width 0.4s; }
+}
+@media (min-width: 769px) {
+  .runner .m-progress { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .runner *, .runner { transition: none !important; animation: none !important; }
+}
