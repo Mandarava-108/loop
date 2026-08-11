@@ -7,8 +7,14 @@ export default function Home() {
       />
       <h1 className="text-3xl font-semibold tracking-tight">Loop</h1>
       <p className="text-sm text-[#9AA1AD]">
-        Same-window usability testing — hello world.
+        Same-window usability testing.
       </p>
+      <a
+        href="/login"
+        className="mt-2 rounded-[10px] bg-[#7C6FF0] px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
+      >
+        Researcher sign in
+      </a>
     </main>
   );
 }

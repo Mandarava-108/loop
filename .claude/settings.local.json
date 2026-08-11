@@ -25,7 +25,11 @@
       "Bash(curl -s 'https://oqisnjggirhhueqzjntq.supabase.co/rest/v1/tasks?select=test_id,sort_order,type,prompt&order=sort_order' -H 'apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX')",
       "Bash(curl -s 'https://oqisnjggirhhueqzjntq.supabase.co/rest/v1/tasks?select=sort_order,type,prompt&order=sort_order' -H 'apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX')",
       "Bash(npm run *)",
-      "Bash(git commit -m 'Participant runner: port prototype to /t/[testId], wired to Supabase *)"
+      "Bash(git commit -m 'Participant runner: port prototype to /t/[testId], wired to Supabase *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://loop-nine-liart.vercel.app/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://loop-nine-liart.vercel.app/t/demotest)",
+      "Bash(curl -s https://loop-nine-liart.vercel.app/t/demotest)",
+      "Bash(git commit -m 'Researcher dashboard: auth, test list, editor with task reordering, share links *)"
     ]
   }
 }
