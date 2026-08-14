@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import ChunkPlayer from "./chunk-player";
+import RrwebPlayer from "./rrweb-player";
 
 export default async function WatchRecordingPage({
   params,
@@ -12,12 +13,13 @@ export default async function WatchRecordingPage({
   // RLS: only the owner can read the session and its chunks.
   const { data: session } = await supabase
     .from("sessions")
-    .select("id, test_id, recording_mime, created_at, tests(title)")
+    .select("id, test_id, recording_type, recording_mime, created_at, tests(title)")
     .eq("id", sessionId)
     .eq("test_id", testId)
     .single<{
       id: string;
       test_id: string;
+      recording_type: "screen" | "rrweb" | null;
       recording_mime: string | null;
       created_at: string;
       tests: { title: string } | null;
@@ -80,10 +82,14 @@ export default async function WatchRecordingPage({
           {urls.length < chunks.length && " · ends early (missing segment)"}
         </p>
 
-        <ChunkPlayer
-          urls={urls}
-          mime={session.recording_mime ?? "video/webm"}
-        />
+        {session.recording_type === "rrweb" ? (
+          <RrwebPlayer urls={urls} />
+        ) : (
+          <ChunkPlayer
+            urls={urls}
+            mime={session.recording_mime ?? "video/webm"}
+          />
+        )}
       </div>
     </main>
   );

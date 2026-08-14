@@ -50,6 +50,10 @@ export default function Runner({
   const [starting, setStarting] = useState(false);
   const [recording, setRecording] = useState(false);
   const [uploadState, setUploadState] = useState<UploadState>("idle");
+  const [method, setMethod] = useState<"screen" | "rrweb" | null>(null);
+  const [iframeSrc, setIframeSrc] = useState(test.site_url);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const snippetPresentRef = useRef(false);
 
   const startedAtRef = useRef("");
   const streamRef = useRef<MediaStream | null>(null);
@@ -80,6 +84,47 @@ export default function Runner({
   useEffect(() => {
     setDesktopCollapsed(false);
   }, [current, phase]);
+
+  // Messages from the recording snippet inside the tested site's iframe.
+  useEffect(() => {
+    function onMessage(e: MessageEvent) {
+      const d = e.data;
+      if (!d || typeof d !== "object") return;
+      if (d.type === "loop:rrweb:hello") snippetPresentRef.current = true;
+      if (d.type === "loop:rrweb:started" && d.sessionId === sessionId) {
+        setRecording(true);
+      }
+    }
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [sessionId]);
+
+  function messageIframe(msg: object) {
+    iframeRef.current?.contentWindow?.postMessage(msg, "*");
+  }
+
+  // Wait briefly for the snippet to announce itself (the site may still be
+  // loading when the participant consents).
+  async function waitForSnippet(ms: number): Promise<boolean> {
+    if (snippetPresentRef.current) return true;
+    messageIframe({ type: "loop:probe" });
+    const deadline = Date.now() + ms;
+    while (Date.now() < deadline) {
+      await new Promise((r) => setTimeout(r, 150));
+      if (snippetPresentRef.current) return true;
+    }
+    return false;
+  }
+
+  function withSessionParam(url: string): string {
+    try {
+      const u = new URL(url);
+      u.searchParams.set("loop_session", sessionId);
+      return u.toString();
+    } catch {
+      return url;
+    }
+  }
 
   // Never leave the capture stream running if the participant navigates away.
   useEffect(() => {
@@ -213,61 +258,81 @@ export default function Runner({
     setStarting(true);
     const consentAt = new Date().toISOString();
     let status: ConsentStatus = agreed ? "granted" : "declined";
-    let willRecord = false;
+    let chosen: "screen" | "rrweb" | null = null;
 
     if (agreed) {
-      const supported =
-        typeof navigator !== "undefined" &&
-        !!navigator.mediaDevices?.getDisplayMedia &&
-        typeof MediaRecorder !== "undefined";
-      if (!supported) {
-        status = "unsupported";
+      // rrweb first (richer replays, works on mobile, no permission prompt) —
+      // available when the tested site includes the Loop snippet.
+      if (await waitForSnippet(2500)) {
+        chosen = "rrweb";
       } else {
-        try {
-          const opts: DisplayMediaOptions = {
-            video: {
-              width: { ideal: 1280 },
-              height: { ideal: 720 },
-              frameRate: { ideal: 8, max: 15 },
-            },
-            audio: false,
-            preferCurrentTab: true,
-            selfBrowserSurface: "include",
-            surfaceSwitching: "exclude",
-          };
-          streamRef.current = await navigator.mediaDevices.getDisplayMedia(
-            opts as MediaStreamConstraints
-          );
-          willRecord = true;
-        } catch (e) {
-          status =
-            e instanceof DOMException && e.name === "NotAllowedError"
-              ? "permission_denied"
-              : "unsupported";
+        const supported =
+          typeof navigator !== "undefined" &&
+          !!navigator.mediaDevices?.getDisplayMedia &&
+          typeof MediaRecorder !== "undefined";
+        if (!supported) {
+          status = "unsupported";
+        } else {
+          try {
+            const opts: DisplayMediaOptions = {
+              video: {
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+                frameRate: { ideal: 8, max: 15 },
+              },
+              audio: false,
+              preferCurrentTab: true,
+              selfBrowserSurface: "include",
+              surfaceSwitching: "exclude",
+            };
+            streamRef.current = await navigator.mediaDevices.getDisplayMedia(
+              opts as MediaStreamConstraints
+            );
+            chosen = "screen";
+          } catch (e) {
+            status =
+              e instanceof DOMException && e.name === "NotAllowedError"
+                ? "permission_denied"
+                : "unsupported";
+          }
         }
       }
     }
 
-    const mime = willRecord ? pickMime() : null;
+    const mime = chosen === "screen" ? pickMime() : null;
 
     // Register the session (consent outcome + recording plan). Fail-soft: if
     // this insert fails the test continues, just without recording (the
-    // storage and chunk policies only accept registered sessions).
+    // storage, chunk, and ingest policies only accept registered sessions).
     const { error } = await supabase.from("sessions").insert({
       id: sessionId,
       test_id: test.id,
       consent_status: status,
       consent_at: consentAt,
-      recording_type: willRecord ? "screen" : null,
+      recording_type: chosen,
       recording_mime: mime,
     });
-    if (error && willRecord) {
+    if (error && chosen) {
       streamRef.current?.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
-      willRecord = false;
+      chosen = null;
     }
+    setMethod(chosen);
 
-    if (willRecord && mime) beginRecording(mime);
+    if (chosen === "screen" && mime) {
+      beginRecording(mime);
+    } else if (chosen === "rrweb") {
+      // Two start channels, whichever reaches the snippet first: reload the
+      // iframe with the session param, and postMessage a few times. The
+      // "recording" indicator only turns on when the snippet confirms.
+      setIframeSrc(withSessionParam(test.site_url));
+      for (const delay of [0, 500, 1500, 3000]) {
+        setTimeout(
+          () => messageIframe({ type: "loop:start", sessionId }),
+          delay
+        );
+      }
+    }
     startedAtRef.current = new Date().toISOString();
     setStarting(false);
     setExpanded(false); // collapse the mobile sheet; desktop is unaffected
@@ -300,7 +365,12 @@ export default function Runner({
 
   function advance() {
     if (current + 1 >= tasks.length) {
-      stopCapture();
+      if (method === "rrweb") {
+        messageIframe({ type: "loop:stop" });
+        setRecording(false);
+      } else {
+        stopCapture();
+      }
       setPhase("done");
       setExpanded(true);
       return;
@@ -360,7 +430,12 @@ export default function Runner({
           )}
           <span className="url">{domain}</span>
         </div>
-        <iframe src={test.site_url} title="Website under test" />
+        <iframe
+          ref={iframeRef}
+          src={iframeSrc}
+          title="Website under test"
+          onLoad={() => messageIframe({ type: "loop:probe" })}
+        />
       </div>
 
       <aside
@@ -442,7 +517,12 @@ export default function Runner({
                 If you agree, this test records:
               </div>
               <ul className="consent-list">
-                <li>your screen activity in this browser tab while you do the tasks</li>
+                <li>
+                  your activity on the website being tested while you do the
+                  tasks — as a screen recording of this browser tab, or as your
+                  interactions with the site (taps, scrolling, typing; text you
+                  type into the site is masked and never recorded)
+                </li>
                 <li>your task answers</li>
               </ul>
               <div className="task-desc">
@@ -514,6 +594,9 @@ export default function Runner({
               </div>
               <h2>That&apos;s everything</h2>
               <p>Your responses have been saved. You can close this window.</p>
+              {method === "rrweb" && (
+                <p className="upload-note">Interaction recording finished.</p>
+              )}
               {uploadState === "uploading" && (
                 <p className="upload-note">Saving your screen recording…</p>
               )}

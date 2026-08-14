@@ -40,7 +40,9 @@
       "Bash(curl -s -w ' HTTP %{http_code}\\\\n' 'https://oqisnjggirhhueqzjntq.supabase.co/rest/v1/recording_chunks?select=id&limit=1' -H 'apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX')",
       "Bash(curl -s -w ' HTTP %{http_code}\\\\n' -X POST https://oqisnjggirhhueqzjntq.supabase.co/storage/v1/object/recordings/zz/00000000-0000-0000-0000-000000000000/0000.webm -H 'apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX' -H 'Authorization: Bearer sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX' -H 'Content-Type: video/webm' --data-binary test)",
       "Bash(git commit -m 'Screen recording: consent-first chunked capture, seamless playback, 30-day retention *)",
-      "Bash(git commit -m 'Desktop: collapsible task panel with progress rail *)"
+      "Bash(git commit -m 'Desktop: collapsible task panel with progress rail *)",
+      "Bash(node -e \"const v=require\\('rrweb/package.json'\\).version; console.log\\('rrweb', v\\); console.log\\('player', require\\('rrweb-player/package.json'\\).version\\)\")",
+      "Bash(git commit -m 'rrweb capture path: snippet, ingest endpoint, mobile-capable recording, replay player *)"
     ]
   }
 }

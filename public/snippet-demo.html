@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snippet demo — fake shop</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; background: #F7F6F0; color: #28311F; }
+  header { padding: 16px 22px; border-bottom: 1px solid #E2E0D5; display: flex; align-items: center; gap: 12px; }
+  main { padding: 24px 22px; max-width: 560px; }
+  input, button { font: inherit; padding: 10px 12px; border-radius: 8px; border: 1px solid #C9C6B8; }
+  button { background: #2F4327; color: #fff; border: 0; cursor: pointer; }
+  .row { display: flex; gap: 8px; margin: 16px 0; }
+  #log { font-size: 13px; color: #7B8470; }
+</style>
+</head>
+<body>
+<header><strong>Demo Shop</strong><span style="color:#7B8470">— page with the Loop snippet installed</span></header>
+<main>
+  <h1>Find your plant</h1>
+  <p>This page demonstrates rrweb capture. Interact freely — typed text below is <em>masked</em> in the recording.</p>
+  <div class="row">
+    <input id="q" placeholder="Search plants… (masked in replay)">
+    <button onclick="document.getElementById('log').textContent='Searched at '+new Date().toLocaleTimeString()">Search</button>
+  </div>
+  <p id="log"></p>
+</main>
+<script src="/loop-record.js" defer></script>
+</body>
+</html>
