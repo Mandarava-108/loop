@@ -39,7 +39,8 @@
       "Bash(curl -s -w ' HTTP %{http_code}\\\\n' 'https://oqisnjggirhhueqzjntq.supabase.co/rest/v1/sessions?select=id&limit=1' -H 'apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX')",
       "Bash(curl -s -w ' HTTP %{http_code}\\\\n' 'https://oqisnjggirhhueqzjntq.supabase.co/rest/v1/recording_chunks?select=id&limit=1' -H 'apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX')",
       "Bash(curl -s -w ' HTTP %{http_code}\\\\n' -X POST https://oqisnjggirhhueqzjntq.supabase.co/storage/v1/object/recordings/zz/00000000-0000-0000-0000-000000000000/0000.webm -H 'apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX' -H 'Authorization: Bearer sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX' -H 'Content-Type: video/webm' --data-binary test)",
-      "Bash(git commit -m 'Screen recording: consent-first chunked capture, seamless playback, 30-day retention *)"
+      "Bash(git commit -m 'Screen recording: consent-first chunked capture, seamless playback, 30-day retention *)",
+      "Bash(git commit -m 'Desktop: collapsible task panel with progress rail *)"
     ]
   }
 }

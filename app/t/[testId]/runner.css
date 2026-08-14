@@ -106,6 +106,81 @@
 /* drag handle + collapse toggle: hidden on desktop */
 .runner .sheet-grip { display: none; }
 
+/* desktop-only elements: hidden by default (mobile) */
+.runner .rail { display: none; }
+.runner .panel-collapse { display: none; }
+
+/* ---------- desktop: collapsible panel ---------- */
+@media (min-width: 769px) {
+  .runner .panel {
+    position: relative;
+    overflow: hidden;
+    transition: width 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .runner .panel.collapsed { width: 48px; }
+
+  /* Fixed-width content so it clips (not reflows) while the panel animates. */
+  .runner .panel-head,
+  .runner .panel-body,
+  .runner .panel-foot {
+    width: var(--panel-w);
+    transition: opacity 0.2s;
+  }
+  .runner .panel.collapsed .panel-head,
+  .runner .panel.collapsed .panel-body,
+  .runner .panel.collapsed .panel-foot {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .runner .panel-collapse {
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-left: auto; width: 28px; height: 28px; border-radius: 8px;
+    border: 0; background: none; color: inherit; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .runner .panel-collapse:hover { background: var(--chrome-raised); }
+  .runner .panel-collapse svg {
+    width: 16px; height: 16px; stroke: var(--ink-dim); stroke-width: 2.2;
+    fill: none; stroke-linecap: round; stroke-linejoin: round; display: block;
+  }
+  .runner .panel-collapse:hover svg { stroke: var(--ink); }
+
+  /* Collapsed rail: same visual language as the mobile grip bar. */
+  .runner .rail {
+    position: absolute; inset: 0; z-index: 2;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    padding: 12px 0 16px;
+    border: 0; background: none; color: inherit; font: inherit;
+    cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .runner .panel.collapsed .rail {
+    opacity: 1;
+    pointer-events: auto;
+    transition-delay: 0.12s;
+  }
+  .runner .rail-chev svg {
+    width: 16px; height: 16px; stroke: var(--ink-dim); stroke-width: 2.2;
+    fill: none; stroke-linecap: round; stroke-linejoin: round; display: block;
+  }
+  .runner .rail:hover .rail-chev svg { stroke: var(--ink); }
+  .runner .rail-step {
+    font-size: 0.7rem; font-weight: 700; color: var(--accent);
+    background: var(--accent-soft); border-radius: 6px; padding: 3px 6px;
+    letter-spacing: 0.04em;
+  }
+  .runner .rail-progress {
+    width: 3px; flex: 1; background: var(--chrome-border);
+    border-radius: 2px; overflow: hidden;
+    display: block;
+  }
+  .runner .rail-progress span {
+    display: block; width: 100%; background: var(--accent);
+    transition: height 0.4s;
+  }
+}
+
 /* ---------- mobile: bottom sheet ---------- */
 @media (max-width: 768px) {
   .runner { flex-direction: column; }

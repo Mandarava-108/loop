@@ -42,6 +42,7 @@ export default function Runner({
   const [phase, setPhase] = useState<Phase>("consent");
   const [current, setCurrent] = useState(0);
   const [expanded, setExpanded] = useState(true); // sheet starts open for consent
+  const [desktopCollapsed, setDesktopCollapsed] = useState(false);
   const [rating, setRating] = useState<string | null>(null);
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -74,6 +75,11 @@ export default function Runner({
       return test.site_url;
     }
   }, [test.site_url]);
+
+  // A new task (or phase) needs the full panel — auto-expand the desktop rail.
+  useEffect(() => {
+    setDesktopCollapsed(false);
+  }, [current, phase]);
 
   // Never leave the capture stream running if the participant navigates away.
   useEffect(() => {
@@ -357,7 +363,30 @@ export default function Runner({
         <iframe src={test.site_url} title="Website under test" />
       </div>
 
-      <aside className={`panel${expanded ? " expanded" : ""}`}>
+      <aside
+        className={`panel${expanded ? " expanded" : ""}${
+          desktopCollapsed ? " collapsed" : ""
+        }`}
+      >
+        {/* desktop collapsed rail */}
+        <button
+          className="rail"
+          aria-label="Expand task panel"
+          aria-expanded={!desktopCollapsed}
+          tabIndex={desktopCollapsed ? 0 : -1}
+          onClick={() => setDesktopCollapsed(false)}
+        >
+          <span className="rail-chev">
+            <svg viewBox="0 0 24 24">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </span>
+          <span className="rail-step">{gripStep}</span>
+          <span className="rail-progress">
+            <span style={{ height: `${pct}%` }} />
+          </span>
+        </button>
+
         {/* mobile grip */}
         <button
           className="sheet-grip"
@@ -383,6 +412,15 @@ export default function Runner({
         <div className="panel-head">
           <div className="brand">
             <span className="brand-mark" /> Loop
+            <button
+              className="panel-collapse"
+              aria-label="Collapse task panel"
+              onClick={() => setDesktopCollapsed(true)}
+            >
+              <svg viewBox="0 0 24 24">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </button>
           </div>
           <div className="progress-wrap">
             <div className="progress-label">
