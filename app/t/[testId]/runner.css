@@ -90,6 +90,13 @@
 
 .runner .save-error { margin-top: 10px; font-size: 0.78rem; line-height: 1.4; color: #f0605a; text-align: center; }
 
+.runner .consent-list {
+  margin: 0 0 16px; padding-left: 20px; list-style: disc;
+  font-size: 0.88rem; line-height: 1.55; color: var(--ink-dim);
+}
+.runner .consent-list li { margin-bottom: 4px; }
+.runner .upload-note { margin-top: 14px; font-size: 0.8rem; color: var(--ink-dim); }
+
 .runner .done { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 28px 8px; }
 .runner .done-ring { width: 56px; height: 56px; border-radius: 50%; background: rgba(78, 207, 154, 0.14); display: grid; place-items: center; margin-bottom: 16px; }
 .runner .done-ring svg { width: 26px; height: 26px; stroke: var(--ok); stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }

@@ -24,6 +24,18 @@ export type SessionRow = {
   cells: { answer: string | null; seconds: number | null }[];
 };
 
+type SessionMeta = {
+  id: string;
+  consent_status: "granted" | "declined" | "permission_denied" | "unsupported";
+};
+
+const CONSENT_LABELS: Record<SessionMeta["consent_status"], string> = {
+  granted: "consented",
+  declined: "declined recording",
+  permission_denied: "permission denied",
+  unsupported: "not supported",
+};
+
 export default async function ResponsesPage({
   params,
 }: PageProps<"/dashboard/[testId]/responses">) {
@@ -86,6 +98,25 @@ export default async function ResponsesPage({
     b.startedAt.localeCompare(a.startedAt)
   );
 
+  // Recording metadata: consent status per session, and which sessions have
+  // uploaded chunks (owner-only via RLS). Chunks may be missing if the upload
+  // failed or the recording is past 30-day retention.
+  const { data: sessionMeta } = await supabase
+    .from("sessions")
+    .select("id, consent_status")
+    .eq("test_id", testId)
+    .returns<SessionMeta[]>();
+  const metaById = new Map((sessionMeta ?? []).map((m) => [m.id, m]));
+
+  const sessionIds = rows.map((r) => r.sessionId);
+  const { data: chunkRows } = sessionIds.length
+    ? await supabase
+        .from("recording_chunks")
+        .select("session_id")
+        .in("session_id", sessionIds)
+    : { data: [] };
+  const hasRecording = new Set((chunkRows ?? []).map((c) => c.session_id));
+
   return (
     <main className="flex-1 bg-[#14161B] text-[#EDEFF3]">
       <div className="mx-auto max-w-5xl px-5 py-10">
@@ -127,6 +158,9 @@ export default async function ResponsesPage({
                   <th className="whitespace-nowrap px-4 py-3 font-medium">
                     Session
                   </th>
+                  <th className="whitespace-nowrap px-4 py-3 font-medium">
+                    Recording
+                  </th>
                   {taskList.map((t, i) => (
                     <th
                       key={t.id}
@@ -155,6 +189,27 @@ export default async function ResponsesPage({
                           timeStyle: "short",
                         })}
                       </div>
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3">
+                      {hasRecording.has(s.sessionId) ? (
+                        <Link
+                          href={`/dashboard/${testId}/responses/${s.sessionId}`}
+                          className="rounded-[8px] border border-[#2B2F38] px-2.5 py-1.5 text-xs font-medium text-[#EDEFF3] transition hover:border-[#7C6FF0]"
+                        >
+                          ▶ Watch
+                        </Link>
+                      ) : (
+                        <span
+                          className="text-xs text-[#565D6B]"
+                          title="No recording for this session"
+                        >
+                          {metaById.has(s.sessionId)
+                            ? CONSENT_LABELS[
+                                metaById.get(s.sessionId)!.consent_status
+                              ]
+                            : "—"}
+                        </span>
+                      )}
                     </td>
                     {s.cells.map((c, i) => (
                       <td key={i} className="px-4 py-3">
