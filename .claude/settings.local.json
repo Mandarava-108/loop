@@ -60,7 +60,9 @@
       "Bash(curl -s -L -m 15 \"https://garchen-archive-admin-staging-lbsje.ondigitalocean.app/events/player-test-history-of-the-copper-colored-mountain-gyaling-horn-melody-single-session-event/history-of-the-copper-colored-mountain-gyaling-horn-melody?interpretation=1\")",
       "Bash(git commit -m 'Question/task presentation modes, mandatory-recording gate, screener phase, rrweb flush fix for large pages *)",
       "Bash(curl -s -X POST https://loop-nine-liart.vercel.app/api/rrweb/ingest -H 'Content-Type: text/plain' -d '{\"sessionId\":\"f2c03599-5e7b-41cd-a3c5-5da5b1dae9ce\",\"events\":[{\"type\":51,\"data\":{\"note\":\"seq-probe\"},\"timestamp\":9}]}')",
-      "Bash(git commit -m 'Task screens: short titles, ease rating and follow-up as separate steps, single-continue P1.1 *)"
+      "Bash(git commit -m 'Task screens: short titles, ease rating and follow-up as separate steps, single-continue P1.1 *)",
+      "Bash(grep -n \"Question \\\\${screenerIndex\" \"app/t/[testId]/runner.tsx\")",
+      "Bash(git commit -m 'Screener: muted progress line, multi-select hint line, languages options trimmed *)"
     ]
   }
 }

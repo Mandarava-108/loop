@@ -656,7 +656,7 @@ export default function Runner({
     : phase === "consent"
       ? "Before you start"
       : phase === "screener"
-        ? `Question ${screenerIndex + 1} of ${screenerSteps.length}`
+        ? "About you" // the count lives in the body's muted progress line
         : phase === "screened_out" || phase === "no_consent"
           ? "Thanks"
           : `Task ${current + 1} of ${tasks.length}`;
@@ -814,8 +814,13 @@ export default function Runner({
 
           {phase === "screener" && screenerStep && (
             <>
-              <div className="task-eyebrow">About you</div>
+              <div className="q-progress">
+                Question {screenerIndex + 1} of {screenerSteps.length}
+              </div>
               <div className="task-title">{screenerStep.label}</div>
+              {screenerStep.multi && (
+                <div className="q-hint">Select all that apply</div>
+              )}
               <div className="choice-list">
                 {screenerStep.options.map((opt) => (
                   <button

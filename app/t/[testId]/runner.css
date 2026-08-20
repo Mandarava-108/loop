@@ -54,6 +54,10 @@
 
 .runner .panel-body { flex: 1; overflow-y: auto; padding: 20px; }
 .runner .task-eyebrow { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); font-weight: 650; margin-bottom: 8px; }
+/* Muted progress line above a question title (e.g. "Question 2 of 4"). */
+.runner .q-progress { font-size: 0.72rem; color: var(--ink-dim); letter-spacing: 0.04em; margin-bottom: 8px; }
+/* Secondary hint under a question title (e.g. "Select all that apply"). */
+.runner .q-hint { font-size: 0.78rem; color: var(--ink-dim); margin: -2px 0 14px; }
 .runner .task-title { font-size: 1.06rem; font-weight: 650; line-height: 1.35; margin-bottom: 8px; }
 .runner .task-desc { font-size: 0.88rem; line-height: 1.55; color: var(--ink-dim); margin-bottom: 20px; }
 
