@@ -42,7 +42,16 @@
       "Bash(git commit -m 'Screen recording: consent-first chunked capture, seamless playback, 30-day retention *)",
       "Bash(git commit -m 'Desktop: collapsible task panel with progress rail *)",
       "Bash(node -e \"const v=require\\('rrweb/package.json'\\).version; console.log\\('rrweb', v\\); console.log\\('player', require\\('rrweb-player/package.json'\\).version\\)\")",
-      "Bash(git commit -m 'rrweb capture path: snippet, ingest endpoint, mobile-capable recording, replay player *)"
+      "Bash(git commit -m 'rrweb capture path: snippet, ingest endpoint, mobile-capable recording, replay player *)",
+      "Bash(curl -s -I -L -m 15 \"https://www.dnjus.org/upcoming-events\")",
+      "Bash(curl -s -L -m 15 \"https://www.dnjus.org/upcoming-events\")",
+      "Bash(echo \"tests:\")",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s 'https://oqisnjggirhhueqzjntq.supabase.co/rest/v1/responses?select=id&test_id=eq.ahs827sd' -H 'apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX')",
+      "Bash(curl -s 'https://oqisnjggirhhueqzjntq.supabase.co/rest/v1/tasks?select=sort_order,prompt&test_id=eq.ahs827sd&order=sort_order' -H 'apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX')",
+      "Bash(curl -s -L -m 20 \"https://garchen-archive-admin-staging-lbsje.ondigitalocean.app/events/player-test-history-of-the-copper-colored-mountain-gyaling-horn-melody-single-session-event/history-of-the-copper-colored-mountain-gyaling-horn-melody?interpretation=1&interpreter_language=zh&interpreter_mode=with_interpreter&transcript_languages=bo,en\" -o /private/tmp/claude-501/-Users-dakini-Desktop-Usability-Testing/f9d1a541-93a2-4394-a700-eed9db8ed098/scratchpad/garchen.html -D -)",
+      "Bash(curl -s 'https://oqisnjggirhhueqzjntq.supabase.co/rest/v1/tasks?select=sort_order,type,prompt,options&test_id=eq.ahs827sd&order=sort_order' -H 'apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX')",
+      "Bash(git commit -m 'Usability task loop \\(self-report, ease 1-7, conditional follow-up\\), per-task config, researcher verification, banner removal *)"
     ]
   }
 }

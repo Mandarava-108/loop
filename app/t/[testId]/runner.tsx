@@ -4,13 +4,28 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import "./runner.css";
 
-export type RunnerTest = { id: string; title: string; site_url: string };
+export type TaskOptions = {
+  key?: string;
+  flag?: string;
+  optional?: boolean;
+  required_text?: { label: string; min?: number; store?: string };
+  confirm?: { label: string; options: string[]; store?: string };
+  success_criteria?: string;
+};
+
+export type RunnerTest = {
+  id: string;
+  title: string;
+  site_url: string;
+  config: Record<string, unknown> | null;
+};
 export type RunnerTask = {
   id: string;
   sort_order: number;
-  type: "instruction" | "rating" | "open_text";
+  type: "instruction" | "rating" | "open_text" | "usability_task";
   prompt: string;
   description: string | null;
+  options: TaskOptions | null;
 };
 
 type ConsentStatus = "granted" | "declined" | "permission_denied" | "unsupported";
@@ -45,6 +60,17 @@ export default function Runner({
   const [desktopCollapsed, setDesktopCollapsed] = useState(false);
   const [rating, setRating] = useState<string | null>(null);
   const [text, setText] = useState("");
+  // usability_task loop state
+  const [stage, setStage] = useState<"work" | "rate" | "followup">("work");
+  const [result, setResult] = useState<"success_claimed" | "gave_up" | null>(
+    null
+  );
+  const [ease, setEase] = useState<number | null>(null);
+  const [confirmChoice, setConfirmChoice] = useState<string | null>(null);
+  const [followup, setFollowup] = useState("");
+  const [extraText, setExtraText] = useState("");
+  const shownAtRef = useRef(Date.now());
+  const reportedAtRef = useRef(0);
   const [submitting, setSubmitting] = useState(false);
   const [saveError, setSaveError] = useState(false);
   const [starting, setStarting] = useState(false);
@@ -71,14 +97,6 @@ export default function Runner({
   const task = tasks[current];
   const pct = done ? 100 : phase === "consent" ? 0 : Math.round((current / tasks.length) * 100);
   const isLast = current === tasks.length - 1;
-
-  const domain = useMemo(() => {
-    try {
-      return new URL(test.site_url).hostname;
-    } catch {
-      return test.site_url;
-    }
-  }, [test.site_url]);
 
   // A new task (or phase) needs the full panel — auto-expand the desktop rail.
   useEffect(() => {
@@ -342,19 +360,28 @@ export default function Runner({
   const canSubmit =
     !submitting &&
     (task?.type === "instruction" ||
-      (task?.type === "rating" ? rating !== null : text.trim().length > 0));
+      (task?.type === "rating"
+        ? rating !== null
+        : task?.options?.optional === true || text.trim().length > 0));
 
-  async function record(answer: string) {
+  const requiredTextMin = task?.options?.required_text?.min ?? 1;
+  const requiredTextOk =
+    !task?.options?.required_text ||
+    extraText.trim().length >= requiredTextMin;
+
+  async function record(answer: string, detail?: Record<string, unknown>) {
     setSubmitting(true);
     setSaveError(false);
-    const { error } = await supabase.from("responses").insert({
+    const row: Record<string, unknown> = {
       test_id: test.id,
       session_id: sessionId,
       task_id: task.id,
       answer,
       started_at: startedAtRef.current,
       submitted_at: new Date().toISOString(),
-    });
+    };
+    if (detail) row.detail = detail; // column exists only after study-upgrade.sql
+    const { error } = await supabase.from("responses").insert(row);
     setSubmitting(false);
     if (error) {
       setSaveError(true);
@@ -378,7 +405,47 @@ export default function Runner({
     setCurrent(current + 1);
     setRating(null);
     setText("");
+    setStage("work");
+    setResult(null);
+    setEase(null);
+    setConfirmChoice(null);
+    setFollowup("");
+    setExtraText("");
+    shownAtRef.current = Date.now();
     startedAtRef.current = new Date().toISOString();
+  }
+
+  // --- usability_task loop ---
+
+  function selfReport(r: "success_claimed" | "gave_up") {
+    setResult(r);
+    reportedAtRef.current = Date.now();
+    setStage("rate");
+  }
+
+  async function finalizeUsability(finalResult: string, finalFollowup: string) {
+    const o = task.options;
+    const detail: Record<string, unknown> = {
+      ease,
+      time_on_task_ms: reportedAtRef.current - shownAtRef.current,
+    };
+    if (finalFollowup.trim()) detail.followup = finalFollowup.trim();
+    if (o?.required_text?.store && extraText.trim()) {
+      detail[o.required_text.store] = extraText.trim();
+    }
+    if (o?.confirm?.store && confirmChoice) {
+      detail[o.confirm.store] = confirmChoice;
+    }
+    if (await record(finalResult, detail)) advance();
+  }
+
+  function continueFromRate() {
+    if (ease === null || result === null) return;
+    if (ease <= 3 || result === "gave_up") {
+      setStage("followup");
+    } else {
+      void finalizeUsability(result, "");
+    }
   }
 
   async function handleNext() {
@@ -403,7 +470,10 @@ export default function Runner({
         ? "Submit"
         : "Done — next task";
 
-  const eyebrow = task?.type === "instruction" ? `Task ${current + 1}` : "Question";
+  const eyebrow =
+    task?.type === "instruction" || task?.type === "usability_task"
+      ? `Task ${current + 1}`
+      : "Question";
 
   const gripStep = done ? "✓" : phase === "consent" ? "i" : `${current + 1}/${tasks.length}`;
   const gripTitle = done
@@ -420,16 +490,6 @@ export default function Runner({
   return (
     <div className="runner">
       <div className="site-pane">
-        <div className="session-bar">
-          {recording ? (
-            <>
-              <span className="rec-dot" /> Recording
-            </>
-          ) : (
-            <>Session</>
-          )}
-          <span className="url">{domain}</span>
-        </div>
         <iframe
           ref={iframeRef}
           src={iframeSrc}
@@ -456,6 +516,7 @@ export default function Runner({
               <polyline points="15 18 9 12 15 6" />
             </svg>
           </span>
+          {recording && <span className="rec-dot" title="Recording" />}
           <span className="rail-step">{gripStep}</span>
           <span className="rail-progress">
             <span style={{ height: `${pct}%` }} />
@@ -471,6 +532,7 @@ export default function Runner({
         >
           <span className="grip-bar" />
           <span className="grip-row">
+            {recording && <span className="rec-dot" title="Recording" />}
             <span className="grip-step">{gripStep}</span>
             <span className="grip-title">{gripTitle}</span>
             <span className="grip-chev">
@@ -487,6 +549,11 @@ export default function Runner({
         <div className="panel-head">
           <div className="brand">
             <span className="brand-mark" /> Loop
+            {recording && (
+              <span className="rec-chip">
+                <span className="rec-dot" /> Recording
+              </span>
+            )}
             <button
               className="panel-collapse"
               aria-label="Collapse task panel"
@@ -513,6 +580,11 @@ export default function Runner({
             <>
               <div className="task-eyebrow">Consent</div>
               <div className="task-title">Before you start</div>
+              {typeof test.config?.duration_text === "string" && (
+                <div className="task-desc">
+                  This study takes {test.config.duration_text}.
+                </div>
+              )}
               <div className="task-desc">
                 If you agree, this test records:
               </div>
@@ -541,7 +613,95 @@ export default function Runner({
             </>
           )}
 
-          {phase === "test" && (
+          {phase === "test" && task.type === "usability_task" && (
+            <>
+              <div className="task-eyebrow">{eyebrow}</div>
+              <div className="task-title">{task.prompt}</div>
+              {task.description && (
+                <div className="task-desc">{task.description}</div>
+              )}
+
+              {stage === "work" && task.options?.required_text && (
+                <div className="answer">
+                  <label htmlFor="extraText">
+                    {task.options.required_text.label}
+                  </label>
+                  <textarea
+                    id="extraText"
+                    placeholder="Type your answer…"
+                    value={extraText}
+                    onChange={(e) => setExtraText(e.target.value)}
+                    onFocus={() => setExpanded(true)}
+                  />
+                  {!requiredTextOk && (
+                    <div className="char-hint">
+                      At least {requiredTextMin} characters (
+                      {extraText.trim().length}/{requiredTextMin})
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {stage === "rate" && (
+                <div className="answer">
+                  <span className="stage-label">
+                    How easy or difficult was that?
+                  </span>
+                  <div className="scale">
+                    {[1, 2, 3, 4, 5, 6, 7].map((v) => (
+                      <button
+                        key={v}
+                        aria-pressed={ease === v}
+                        onClick={() => setEase(v)}
+                      >
+                        {v}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="scale-ends">
+                    <span>Very difficult</span>
+                    <span>Very easy</span>
+                  </div>
+
+                  {task.options?.confirm && (
+                    <>
+                      <span className="stage-label">
+                        {task.options.confirm.label}
+                      </span>
+                      <div className="choice-list">
+                        {task.options.confirm.options.map((opt) => (
+                          <button
+                            key={opt}
+                            aria-pressed={confirmChoice === opt}
+                            onClick={() => setConfirmChoice(opt)}
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {stage === "followup" && (
+                <div className="answer">
+                  <span className="stage-label">
+                    What got in the way?{" "}
+                    <span style={{ opacity: 0.7 }}>(optional)</span>
+                  </span>
+                  <textarea
+                    placeholder="Tell us what made it hard…"
+                    value={followup}
+                    onChange={(e) => setFollowup(e.target.value)}
+                    onFocus={() => setExpanded(true)}
+                  />
+                </div>
+              )}
+            </>
+          )}
+
+          {phase === "test" && task.type !== "usability_task" && (
             <>
               <div className="task-eyebrow">{eyebrow}</div>
               <div className="task-title">{task.prompt}</div>
@@ -638,7 +798,62 @@ export default function Runner({
           </div>
         )}
 
-        {phase === "test" && (
+        {phase === "test" && task.type === "usability_task" && (
+          <div className="panel-foot">
+            {stage === "work" && (
+              <>
+                <button
+                  className="btn"
+                  disabled={submitting || !requiredTextOk}
+                  onClick={() => selfReport("success_claimed")}
+                >
+                  Done — I did it
+                </button>
+                <button
+                  className="btn ghost"
+                  disabled={submitting || !requiredTextOk}
+                  onClick={() => selfReport("gave_up")}
+                >
+                  I couldn&apos;t figure it out
+                </button>
+              </>
+            )}
+            {stage === "rate" && (
+              <button
+                className="btn"
+                disabled={
+                  submitting ||
+                  ease === null ||
+                  (!!task.options?.confirm && confirmChoice === null)
+                }
+                onClick={continueFromRate}
+              >
+                {submitting
+                  ? "Saving…"
+                  : isLast && !(ease !== null && (ease <= 3 || result === "gave_up"))
+                    ? "Finish test"
+                    : "Continue"}
+              </button>
+            )}
+            {stage === "followup" && (
+              <button
+                className="btn"
+                disabled={submitting}
+                onClick={() => void finalizeUsability(result!, followup)}
+              >
+                {submitting ? "Saving…" : isLast ? "Finish test" : "Continue"}
+              </button>
+            )}
+            {saveError && (
+              <div className="save-error" role="alert">
+                Couldn&apos;t save your answer — check your connection and try
+                again.
+              </div>
+            )}
+          </div>
+        )}
+
+        {phase === "test" && task.type !== "usability_task" && (
           <div className="panel-foot">
             <button className="btn" disabled={!canSubmit} onClick={handleNext}>
               {nextLabel}

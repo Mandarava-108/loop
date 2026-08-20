@@ -1,7 +1,5 @@
 "use client";
 
-import type { SessionRow } from "./page";
-
 function csvField(value: string): string {
   if (/[",\n\r]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
   return value;
@@ -9,33 +7,15 @@ function csvField(value: string): string {
 
 export default function ExportCsvButton({
   filename,
-  tasks,
+  header,
   rows,
 }: {
   filename: string;
-  tasks: string[];
-  rows: SessionRow[];
+  header: string[];
+  rows: string[][];
 }) {
   function download() {
-    const header = [
-      "session_id",
-      "session_started_at",
-      ...tasks.flatMap((t) => [t, `${t} (seconds)`]),
-    ];
-    const lines = [header.map(csvField).join(",")];
-
-    for (const s of rows) {
-      const cells = [
-        s.sessionId,
-        s.startedAt,
-        ...s.cells.flatMap((c) => [
-          c.answer ?? "",
-          c.seconds === null ? "" : String(c.seconds),
-        ]),
-      ];
-      lines.push(cells.map(csvField).join(","));
-    }
-
+    const lines = [header, ...rows].map((r) => r.map(csvField).join(","));
     const blob = new Blob(["﻿" + lines.join("\r\n")], {
       type: "text/csv;charset=utf-8",
     });

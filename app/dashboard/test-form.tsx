@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 export type EditorTask = {
   id?: string; // present for tasks already in the database
   key: string; // stable client-side key
-  type: "instruction" | "rating" | "open_text";
+  type: "instruction" | "rating" | "open_text" | "usability_task";
   prompt: string;
   description: string;
 };
@@ -23,6 +23,7 @@ const TYPE_LABELS: Record<EditorTask["type"], string> = {
   instruction: "Instruction",
   rating: "Rating (1–5)",
   open_text: "Open text",
+  usability_task: "Usability task (self-report + ease 1–7)",
 };
 
 let nextKey = 0;
