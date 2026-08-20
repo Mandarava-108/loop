@@ -8,6 +8,7 @@ export type TaskOptions = {
   key?: string;
   flag?: string;
   optional?: boolean;
+  fullscreen?: boolean; // render as a question card, site not visible
   required_text?: { label: string; min?: number; store?: string };
   confirm?: { label: string; options: string[]; store?: string };
   success_criteria?: string;
@@ -29,7 +30,26 @@ export type RunnerTask = {
 };
 
 type ConsentStatus = "granted" | "declined" | "permission_denied" | "unsupported";
-type Phase = "consent" | "test" | "done";
+type Phase =
+  | "consent"
+  | "no_consent"
+  | "screener"
+  | "screened_out"
+  | "test"
+  | "done";
+
+export type ScreenerStep = {
+  id: string;
+  label: string;
+  options: string[];
+  multi?: boolean;
+  min?: number;
+  exclusive?: string; // option that deselects all others (and vice versa)
+  pass_if_any?: string[]; // if set, selection must intersect to pass
+  strict_flag?: string; // config flag: true = failing disqualifies
+  fail_tag?: string; // tag stored when failing non-strict
+  disqualify_message?: string;
+};
 type UploadState = "idle" | "uploading" | "saved" | "partial" | "failed";
 
 // ~5-minute segments: at RECORDING_BITRATE this is ~22 MB per chunk,
@@ -71,6 +91,19 @@ export default function Runner({
   const [extraText, setExtraText] = useState("");
   const shownAtRef = useRef(Date.now());
   const reportedAtRef = useRef(0);
+
+  // Screener phase (config-driven; runs between consent and the first task)
+  const screenerSteps = useMemo<ScreenerStep[]>(() => {
+    const s = test.config?.screener;
+    return Array.isArray(s) ? (s as ScreenerStep[]) : [];
+  }, [test.config]);
+  const [screenerIndex, setScreenerIndex] = useState(0);
+  const [screenerSelected, setScreenerSelected] = useState<string[]>([]);
+  const [screenedOutMessage, setScreenedOutMessage] = useState("");
+  const [consentError, setConsentError] = useState(false);
+  const requireRecording = test.config?.REQUIRE_RECORDING === true;
+  const screenerAnswersRef = useRef<Record<string, string | string[]>>({});
+  const screenerTagsRef = useRef<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [saveError, setSaveError] = useState(false);
   const [starting, setStarting] = useState(false);
@@ -80,6 +113,10 @@ export default function Runner({
   const [iframeSrc, setIframeSrc] = useState(test.site_url);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const snippetPresentRef = useRef(false);
+  const consentGrantedRef = useRef(false);
+  const heldMimeRef = useRef<string | null>(null);
+  const methodDecidedRef = useRef(false);
+  const screenFallbackRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const startedAtRef = useRef("");
   const streamRef = useRef<MediaStream | null>(null);
@@ -108,8 +145,12 @@ export default function Runner({
     function onMessage(e: MessageEvent) {
       const d = e.data;
       if (!d || typeof d !== "object") return;
-      if (d.type === "loop:rrweb:hello") snippetPresentRef.current = true;
+      if (d.type === "loop:rrweb:hello") {
+        snippetPresentRef.current = true;
+        void commitRrweb();
+      }
       if (d.type === "loop:rrweb:started" && d.sessionId === sessionId) {
+        void commitRrweb();
         setRecording(true);
       }
     }
@@ -119,19 +160,6 @@ export default function Runner({
 
   function messageIframe(msg: object) {
     iframeRef.current?.contentWindow?.postMessage(msg, "*");
-  }
-
-  // Wait briefly for the snippet to announce itself (the site may still be
-  // loading when the participant consents).
-  async function waitForSnippet(ms: number): Promise<boolean> {
-    if (snippetPresentRef.current) return true;
-    messageIframe({ type: "loop:probe" });
-    const deadline = Date.now() + ms;
-    while (Date.now() < deadline) {
-      await new Promise((r) => setTimeout(r, 150));
-      if (snippetPresentRef.current) return true;
-    }
-    return false;
   }
 
   function withSessionParam(url: string): string {
@@ -274,87 +302,216 @@ export default function Runner({
 
   async function startSession(agreed: boolean) {
     setStarting(true);
+    setConsentError(false);
     const consentAt = new Date().toISOString();
-    let status: ConsentStatus = agreed ? "granted" : "declined";
-    let chosen: "screen" | "rrweb" | null = null;
+    const status: ConsentStatus = agreed ? "granted" : "declined";
+    consentGrantedRef.current = agreed;
 
+    // Recording-mandatory studies: declining consent ends the study here.
+    if (!agreed && requireRecording) {
+      await supabase.from("sessions").insert({
+        id: sessionId,
+        test_id: test.id,
+        consent_status: status,
+        consent_at: consentAt,
+        recording_type: null,
+        recording_mime: null,
+      });
+      setStarting(false);
+      setPhase("no_consent");
+      return;
+    }
+
+    // Question mode: the site iframe is NOT mounted yet, so the recording
+    // method can't be decided here. For screen capture the permission prompt
+    // must happen on this click (user activation), so we acquire and HOLD the
+    // stream now — the recorder starts only when task mode begins. If the
+    // site turns out to have the rrweb snippet, the held stream is discarded
+    // (rrweb takes priority).
     if (agreed) {
-      // rrweb first (richer replays, works on mobile, no permission prompt) —
-      // available when the tested site includes the Loop snippet.
-      if (await waitForSnippet(2500)) {
-        chosen = "rrweb";
-      } else {
-        const supported =
-          typeof navigator !== "undefined" &&
-          !!navigator.mediaDevices?.getDisplayMedia &&
-          typeof MediaRecorder !== "undefined";
-        if (!supported) {
-          status = "unsupported";
-        } else {
-          try {
-            const opts: DisplayMediaOptions = {
-              video: {
-                width: { ideal: 1280 },
-                height: { ideal: 720 },
-                frameRate: { ideal: 8, max: 15 },
-              },
-              audio: false,
-              preferCurrentTab: true,
-              selfBrowserSurface: "include",
-              surfaceSwitching: "exclude",
-            };
-            streamRef.current = await navigator.mediaDevices.getDisplayMedia(
-              opts as MediaStreamConstraints
-            );
-            chosen = "screen";
-          } catch (e) {
-            status =
-              e instanceof DOMException && e.name === "NotAllowedError"
-                ? "permission_denied"
-                : "unsupported";
+      const supported =
+        typeof navigator !== "undefined" &&
+        !!navigator.mediaDevices?.getDisplayMedia &&
+        typeof MediaRecorder !== "undefined";
+      if (supported) {
+        try {
+          const opts: DisplayMediaOptions = {
+            video: {
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+              frameRate: { ideal: 8, max: 15 },
+            },
+            audio: false,
+            preferCurrentTab: true,
+            selfBrowserSurface: "include",
+            surfaceSwitching: "exclude",
+          };
+          streamRef.current = await navigator.mediaDevices.getDisplayMedia(
+            opts as MediaStreamConstraints
+          );
+          heldMimeRef.current = pickMime();
+        } catch {
+          // Permission denied or unavailable.
+          if (requireRecording) {
+            // Recording is mandatory: stay on the consent card and let them
+            // try again — no way forward without sharing.
+            setConsentError(true);
+            setStarting(false);
+            return;
           }
+          // Lenient studies: rrweb may still record; consent stands.
         }
       }
     }
 
-    const mime = chosen === "screen" ? pickMime() : null;
-
-    // Register the session (consent outcome + recording plan). Fail-soft: if
-    // this insert fails the test continues, just without recording (the
-    // storage, chunk, and ingest policies only accept registered sessions).
-    const { error } = await supabase.from("sessions").insert({
+    // Register the session (consent outcome). recording_type is set later,
+    // exactly once, via the set_session_recording RPC when task mode starts.
+    // Fail-soft: an insert error never blocks the test.
+    await supabase.from("sessions").insert({
       id: sessionId,
       test_id: test.id,
       consent_status: status,
       consent_at: consentAt,
-      recording_type: chosen,
-      recording_mime: mime,
+      recording_type: null,
+      recording_mime: null,
     });
-    if (error && chosen) {
+
+    setIframeSrc(agreed ? withSessionParam(test.site_url) : test.site_url);
+    setStarting(false);
+    if (screenerSteps.length > 0) {
+      setPhase("screener"); // still question mode — no site visible
+    } else {
+      enterTaskMode();
+    }
+  }
+
+  // --- task mode entry & recording method commitment ---
+
+  function enterTaskMode() {
+    setExpanded(false); // collapse the mobile sheet; desktop is unaffected
+    shownAtRef.current = Date.now();
+    startedAtRef.current = new Date().toISOString();
+    setPhase("test");
+    // The iframe mounts now. If the snippet announces itself, rrweb wins;
+    // otherwise a held screen stream is committed after a grace period.
+    if (streamRef.current) {
+      screenFallbackRef.current = setTimeout(() => void commitScreen(), 4000);
+    }
+  }
+
+  async function commitRrweb() {
+    if (methodDecidedRef.current || !consentGrantedRef.current) return;
+    methodDecidedRef.current = true;
+    if (screenFallbackRef.current) clearTimeout(screenFallbackRef.current);
+    // Discard any held screen stream — rrweb replays are richer.
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    setMethod("rrweb");
+    await supabase.rpc("set_session_recording", {
+      p_session: sessionId,
+      p_type: "rrweb",
+      p_mime: null,
+    });
+    messageIframe({ type: "loop:start", sessionId });
+  }
+
+  async function commitScreen() {
+    if (methodDecidedRef.current) return;
+    const mime = heldMimeRef.current;
+    if (!streamRef.current || !mime) return;
+    methodDecidedRef.current = true;
+    setMethod("screen");
+    const { data: ok } = await supabase.rpc("set_session_recording", {
+      p_session: sessionId,
+      p_type: "screen",
+      p_mime: mime,
+    });
+    if (ok) {
+      beginRecording(mime);
+    } else {
+      // Session not eligible (insert failed earlier?) — stay honest, no
+      // recording, release the capture.
       streamRef.current?.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
-      chosen = null;
+      setMethod(null);
     }
-    setMethod(chosen);
+  }
 
-    if (chosen === "screen" && mime) {
-      beginRecording(mime);
-    } else if (chosen === "rrweb") {
-      // Two start channels, whichever reaches the snippet first: reload the
-      // iframe with the session param, and postMessage a few times. The
-      // "recording" indicator only turns on when the snippet confirms.
-      setIframeSrc(withSessionParam(test.site_url));
-      for (const delay of [0, 500, 1500, 3000]) {
-        setTimeout(
-          () => messageIframe({ type: "loop:start", sessionId }),
-          delay
+  // --- screener phase ---
+
+  function stopAllRecording() {
+    if (screenFallbackRef.current) clearTimeout(screenFallbackRef.current);
+    if (method === "rrweb") {
+      messageIframe({ type: "loop:stop" });
+      setRecording(false);
+    } else {
+      stopCapture(); // stops recorder if running, else releases held stream
+    }
+  }
+
+  function toggleScreenerOption(opt: string) {
+    const step = screenerSteps[screenerIndex];
+    if (!step.multi) {
+      setScreenerSelected([opt]);
+      return;
+    }
+    setScreenerSelected((sel) => {
+      if (sel.includes(opt)) return sel.filter((o) => o !== opt);
+      // Exclusive option deselects all others, and vice versa.
+      if (step.exclusive && opt === step.exclusive) return [opt];
+      const base = step.exclusive ? sel.filter((o) => o !== step.exclusive) : sel;
+      return [...base, opt];
+    });
+  }
+
+  async function saveScreener(screenedOut: boolean) {
+    await supabase.from("screener_answers").insert({
+      session_id: sessionId,
+      answers: screenerAnswersRef.current,
+      tags: screenerTagsRef.current,
+      screened_out: screenedOut,
+    });
+    // Fail-soft: an insert error never blocks the participant.
+  }
+
+  async function screenerContinue() {
+    const step = screenerSteps[screenerIndex];
+    screenerAnswersRef.current[step.id] = step.multi
+      ? screenerSelected
+      : screenerSelected[0];
+
+    if (
+      step.pass_if_any &&
+      !screenerSelected.some((o) => step.pass_if_any!.includes(o))
+    ) {
+      const strict =
+        !!step.strict_flag && test.config?.[step.strict_flag] === true;
+      if (strict) {
+        setSubmitting(true);
+        await saveScreener(true);
+        setSubmitting(false);
+        stopAllRecording();
+        setScreenedOutMessage(
+          step.disqualify_message ??
+            "This study isn't a fit this time — thanks for your interest!"
         );
+        setPhase("screened_out");
+        return;
+      }
+      if (step.fail_tag && !screenerTagsRef.current.includes(step.fail_tag)) {
+        screenerTagsRef.current.push(step.fail_tag);
       }
     }
-    startedAtRef.current = new Date().toISOString();
-    setStarting(false);
-    setExpanded(false); // collapse the mobile sheet; desktop is unaffected
-    setPhase("test");
+
+    if (screenerIndex + 1 >= screenerSteps.length) {
+      setSubmitting(true);
+      await saveScreener(false);
+      setSubmitting(false);
+      enterTaskMode();
+    } else {
+      setScreenerIndex(screenerIndex + 1);
+      setScreenerSelected([]);
+    }
   }
 
   const canSubmit =
@@ -392,15 +549,16 @@ export default function Runner({
 
   function advance() {
     if (current + 1 >= tasks.length) {
-      if (method === "rrweb") {
-        messageIframe({ type: "loop:stop" });
-        setRecording(false);
-      } else {
-        stopCapture();
-      }
+      stopAllRecording();
       setPhase("done");
       setExpanded(true);
       return;
+    }
+    // Entering a full-screen question card unmounts the site — recording of
+    // site activity ends here (the card itself isn't part of the study data).
+    if (tasks[current + 1]?.options?.fullscreen) {
+      stopAllRecording();
+      setExpanded(true);
     }
     setCurrent(current + 1);
     setRating(null);
@@ -475,28 +633,49 @@ export default function Runner({
       ? `Task ${current + 1}`
       : "Question";
 
-  const gripStep = done ? "✓" : phase === "consent" ? "i" : `${current + 1}/${tasks.length}`;
+  const screenerStep = screenerSteps[screenerIndex];
+  const gripStep = done
+    ? "✓"
+    : phase === "consent" || phase === "screened_out" || phase === "no_consent"
+      ? "i"
+      : phase === "screener"
+        ? `${screenerIndex + 1}/${screenerSteps.length}`
+        : `${current + 1}/${tasks.length}`;
   const gripTitle = done
     ? "Test complete — thank you!"
     : phase === "consent"
       ? "Before you start"
-      : task.prompt;
+      : phase === "screener"
+        ? screenerStep?.label ?? "About you"
+        : phase === "screened_out" || phase === "no_consent"
+          ? "Thanks for your interest"
+          : task.prompt;
   const stepLabel = done
     ? "Complete"
     : phase === "consent"
       ? "Before you start"
-      : `Task ${current + 1} of ${tasks.length}`;
+      : phase === "screener"
+        ? `Question ${screenerIndex + 1} of ${screenerSteps.length}`
+        : phase === "screened_out" || phase === "no_consent"
+          ? "Thanks"
+          : `Task ${current + 1} of ${tasks.length}`;
+
+  // Question mode: full-screen cards, the test site is NOT mounted anywhere —
+  // a participant's first sight of it must be the first task, not before.
+  const qmode = phase !== "test" || task?.options?.fullscreen === true;
 
   return (
-    <div className="runner">
-      <div className="site-pane">
-        <iframe
-          ref={iframeRef}
-          src={iframeSrc}
-          title="Website under test"
-          onLoad={() => messageIframe({ type: "loop:probe" })}
-        />
-      </div>
+    <div className={`runner${qmode ? " qmode" : ""}`}>
+      {!qmode && (
+        <div className="site-pane">
+          <iframe
+            ref={iframeRef}
+            src={iframeSrc}
+            title="Website under test"
+            onLoad={() => messageIframe({ type: "loop:probe" })}
+          />
+        </div>
+      )}
 
       <aside
         className={`panel${expanded ? " expanded" : ""}${
@@ -608,9 +787,53 @@ export default function Runner({
                 after 30 days.
               </div>
               <div className="task-desc">
-                Prefer not to be recorded? You can still take the test.
+                {requireRecording
+                  ? "This study only works with recording, so it can't continue without your consent."
+                  : "Prefer not to be recorded? You can still take the test."}
+              </div>
+              {consentError && (
+                <div className="save-error" role="alert" style={{ textAlign: "left" }}>
+                  Screen sharing is required to take part. Click “I agree —
+                  start the test” again, and when your browser asks, choose
+                  this tab and press Share.
+                </div>
+              )}
+            </>
+          )}
+
+          {phase === "no_consent" && (
+            <div className="done">
+              <h2>That&apos;s okay</h2>
+              <p>
+                This study needs recording to run, so it ends here. Thanks for
+                your time — you can close this window.
+              </p>
+            </div>
+          )}
+
+          {phase === "screener" && screenerStep && (
+            <>
+              <div className="task-eyebrow">About you</div>
+              <div className="task-title">{screenerStep.label}</div>
+              <div className="choice-list">
+                {screenerStep.options.map((opt) => (
+                  <button
+                    key={opt}
+                    aria-pressed={screenerSelected.includes(opt)}
+                    onClick={() => toggleScreenerOption(opt)}
+                  >
+                    {opt}
+                  </button>
+                ))}
               </div>
             </>
+          )}
+
+          {phase === "screened_out" && (
+            <div className="done">
+              <h2>Thanks for your interest</h2>
+              <p>{screenedOutMessage}</p>
+            </div>
           )}
 
           {phase === "test" && task.type === "usability_task" && (
@@ -793,7 +1016,22 @@ export default function Runner({
               disabled={starting}
               onClick={() => startSession(false)}
             >
-              Continue without recording
+              {requireRecording ? "I don't agree" : "Continue without recording"}
+            </button>
+          </div>
+        )}
+
+        {phase === "screener" && screenerStep && (
+          <div className="panel-foot">
+            <button
+              className="btn"
+              disabled={
+                submitting ||
+                screenerSelected.length < (screenerStep.min ?? 1)
+              }
+              onClick={() => void screenerContinue()}
+            >
+              {submitting ? "Saving…" : "Continue"}
             </button>
           </div>
         )}

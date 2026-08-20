@@ -60,19 +60,33 @@
     // the ingest endpoint parses the body as JSON regardless.
     if (useBeacon && navigator.sendBeacon) {
       try {
-        navigator.sendBeacon(INGEST, new Blob([body], { type: "text/plain" }));
-        return;
+        // sendBeacon returns false when the payload is too large (~64KB) —
+        // fall through to a normal fetch in that case.
+        if (
+          navigator.sendBeacon(INGEST, new Blob([body], { type: "text/plain" }))
+        ) {
+          return;
+        }
       } catch (e) {}
     }
+    // NOTE: no keepalive — Chrome rejects keepalive bodies over 64KB, and
+    // rrweb full snapshots regularly exceed that.
     fetch(INGEST, {
       method: "POST",
       headers: { "Content-Type": "text/plain" },
       body: body,
-      keepalive: true,
-    }).catch(function () {
-      // Put events back so the next flush retries them.
-      buf = events.concat(buf);
-    });
+    })
+      .then(function (res) {
+        // Server hiccup (5xx): retry these events on the next flush.
+        // 4xx (ineligible/invalid session) is final — don't loop forever.
+        if (!res.ok && res.status >= 500) {
+          buf = events.concat(buf);
+        }
+      })
+      .catch(function () {
+        // Network error: put events back so the next flush retries them.
+        buf = events.concat(buf);
+      });
   }
 
   function start(id) {

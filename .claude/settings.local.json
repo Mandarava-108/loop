@@ -51,7 +51,14 @@
       "Bash(curl -s 'https://oqisnjggirhhueqzjntq.supabase.co/rest/v1/tasks?select=sort_order,prompt&test_id=eq.ahs827sd&order=sort_order' -H 'apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX')",
       "Bash(curl -s -L -m 20 \"https://garchen-archive-admin-staging-lbsje.ondigitalocean.app/events/player-test-history-of-the-copper-colored-mountain-gyaling-horn-melody-single-session-event/history-of-the-copper-colored-mountain-gyaling-horn-melody?interpretation=1&interpreter_language=zh&interpreter_mode=with_interpreter&transcript_languages=bo,en\" -o /private/tmp/claude-501/-Users-dakini-Desktop-Usability-Testing/f9d1a541-93a2-4394-a700-eed9db8ed098/scratchpad/garchen.html -D -)",
       "Bash(curl -s 'https://oqisnjggirhhueqzjntq.supabase.co/rest/v1/tasks?select=sort_order,type,prompt,options&test_id=eq.ahs827sd&order=sort_order' -H 'apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX')",
-      "Bash(git commit -m 'Usability task loop \\(self-report, ease 1-7, conditional follow-up\\), per-task config, researcher verification, banner removal *)"
+      "Bash(git commit -m 'Usability task loop \\(self-report, ease 1-7, conditional follow-up\\), per-task config, researcher verification, banner removal *)",
+      "Bash(curl -s 'https://oqisnjggirhhueqzjntq.supabase.co/rest/v1/tests?select=config&id=eq.ahs827sd' -H 'apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX')",
+      "Bash(curl -s -w ' HTTP %{http_code}\\\\n' -X POST https://loop-nine-liart.vercel.app/api/rrweb/ingest -H 'Content-Type: text/plain' -d '{\"sessionId\":\"20910bdf-13a4-4c04-b36a-4a8e7ee73328\",\"events\":[{\"type\":51,\"data\":{\"note\":\"claude-verification-probe\"},\"timestamp\":1}]}')",
+      "Bash(curl -s -X POST https://loop-nine-liart.vercel.app/api/rrweb/ingest -H 'Content-Type: text/plain' -d '{\"sessionId\":\"20910bdf-13a4-4c04-b36a-4a8e7ee73328\",\"events\":[{\"type\":51,\"data\":{\"note\":\"probe2\"},\"timestamp\":2}]}')",
+      "Bash(curl -s https://loop-nine-liart.vercel.app/loop-record.js)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} %{size_download} bytes\\\\n\" https://loop-nine-liart.vercel.app/rrweb.min.js)",
+      "Bash(curl -s -L -m 15 \"https://garchen-archive-admin-staging-lbsje.ondigitalocean.app/events/player-test-history-of-the-copper-colored-mountain-gyaling-horn-melody-single-session-event/history-of-the-copper-colored-mountain-gyaling-horn-melody?interpretation=1\")",
+      "Bash(git commit -m 'Question/task presentation modes, mandatory-recording gate, screener phase, rrweb flush fix for large pages *)"
     ]
   }
 }

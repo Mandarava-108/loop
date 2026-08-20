@@ -63,6 +63,25 @@ const RESULT_LABELS: Record<string, string> = {
   gave_up: "gave up",
 };
 
+type ScreenerRow = {
+  session_id: string;
+  answers: Record<string, unknown>;
+  tags: string[];
+  screened_out: boolean;
+};
+
+// Familiarity is the primary segmentation variable — badge it by level.
+function familiarityBadge(raw: string): { label: string; cls: string } {
+  const v = raw.toLowerCase();
+  if (v.startsWith("i've never") || v.startsWith("i’ve never"))
+    return { label: "new to teachings", cls: "text-[#9AA1AD] border-[#2B2F38]" };
+  if (v.startsWith("somewhat"))
+    return { label: "somewhat familiar", cls: "text-[#E8C468] border-[#8a6d1f]" };
+  if (v.startsWith("i follow"))
+    return { label: "follows regularly", cls: "text-[#4ECF9A] border-[#2d6e54]" };
+  return { label: raw, cls: "text-[#9AA1AD] border-[#2B2F38]" };
+}
+
 function str(v: unknown): string {
   return typeof v === "string" ? v : v == null ? "" : String(v);
 }
@@ -149,6 +168,22 @@ export default async function ResponsesPage({
     .returns<SessionMeta[]>();
   const metaById = new Map((sessionMeta ?? []).map((m) => [m.id, m]));
 
+  // Screener answers (device, languages, age, familiarity) per session.
+  const allSessionIds = (sessionMeta ?? []).map((m) => m.id);
+  const { data: screenerRows } = allSessionIds.length
+    ? await supabase
+        .from("screener_answers")
+        .select("session_id, answers, tags, screened_out")
+        .in("session_id", allSessionIds)
+        .returns<ScreenerRow[]>()
+    : { data: [] as ScreenerRow[] };
+  const screenerById = new Map(
+    (screenerRows ?? []).map((s) => [s.session_id, s])
+  );
+  const screenedOutCount = (screenerRows ?? []).filter(
+    (s) => s.screened_out
+  ).length;
+
   const sessionIds = rows.map((r) => r.sessionId);
   const { data: chunkRows } = sessionIds.length
     ? await supabase
@@ -159,7 +194,26 @@ export default async function ResponsesPage({
   const hasRecording = new Set((chunkRows ?? []).map((c) => c.session_id));
 
   // ---------- CSV (built server-side, downloaded client-side) ----------
-  const header: string[] = ["session_id", "session_started_at"];
+  const header: string[] = [
+    "session_id",
+    "session_started_at",
+    "device",
+    "languages",
+    "age_range",
+    "familiarity",
+    "screener_tags",
+  ];
+  const screenerCsv = (sessionId: string): string[] => {
+    const s = screenerById.get(sessionId);
+    const a = s?.answers ?? {};
+    return [
+      str(a.device),
+      Array.isArray(a.languages) ? a.languages.join("; ") : str(a.languages),
+      str(a.age_range),
+      str(a.familiarity),
+      (s?.tags ?? []).join("; "),
+    ];
+  };
   const columns: ((c: Cell) => string)[] = [];
   taskList.forEach((t, i) => {
     if (t.type === "usability_task") {
@@ -197,6 +251,7 @@ export default async function ResponsesPage({
   const csvRows = rows.map((s) => [
     s.sessionId,
     s.startedAt,
+    ...screenerCsv(s.sessionId),
     ...s.cells.flatMap((c) => columns.map((fn) => fn(c))),
   ]);
 
@@ -214,6 +269,8 @@ export default async function ResponsesPage({
             <h1 className="text-xl font-semibold">{test.title}</h1>
             <p className="mt-1 text-sm text-[#9AA1AD]">
               {rows.length} participant session{rows.length === 1 ? "" : "s"}
+              {screenedOutCount > 0 &&
+                ` · ${screenedOutCount} screened out (not shown)`}
             </p>
           </div>
           {rows.length > 0 && (
@@ -243,6 +300,12 @@ export default async function ResponsesPage({
                   </th>
                   <th className="whitespace-nowrap px-4 py-3 font-medium">
                     Recording
+                  </th>
+                  <th
+                    className="whitespace-nowrap px-4 py-3 font-medium text-[#7C6FF0]"
+                    title="Primary segmentation variable, from the screener"
+                  >
+                    Familiarity
                   </th>
                   {taskList.map((t, i) => (
                     <th
@@ -297,6 +360,36 @@ export default async function ResponsesPage({
                             : "—"}
                         </span>
                       )}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3">
+                      {(() => {
+                        const sc = screenerById.get(s.sessionId);
+                        const fam = str(sc?.answers?.familiarity);
+                        if (!fam)
+                          return <span className="text-[#565D6B]">—</span>;
+                        const badge = familiarityBadge(fam);
+                        const a = sc!.answers;
+                        const details = [
+                          `Device: ${str(a.device) || "?"}`,
+                          `Languages: ${
+                            Array.isArray(a.languages)
+                              ? a.languages.join(", ")
+                              : str(a.languages) || "?"
+                          }`,
+                          `Age: ${str(a.age_range) || "?"}`,
+                          sc!.tags.length ? `Tags: ${sc!.tags.join(", ")}` : "",
+                        ]
+                          .filter(Boolean)
+                          .join("\n");
+                        return (
+                          <span
+                            title={`${fam}\n\n${details}`}
+                            className={`inline-block rounded-full border px-2.5 py-1 text-xs font-medium ${badge.cls}`}
+                          >
+                            {badge.label}
+                          </span>
+                        );
+                      })()}
                     </td>
                     {s.cells.map((c, i) => {
                       const t = taskList[i];
