@@ -9,6 +9,7 @@ export type TaskOptions = {
   flag?: string;
   optional?: boolean;
   fullscreen?: boolean; // render as a question card, site not visible
+  single_continue?: boolean; // one Continue button instead of did-it/gave-up
   required_text?: { label: string; min?: number; store?: string };
   confirm?: { label: string; options: string[]; store?: string };
   success_criteria?: string;
@@ -839,37 +840,45 @@ export default function Runner({
           {phase === "test" && task.type === "usability_task" && (
             <>
               <div className="task-eyebrow">{eyebrow}</div>
-              <div className="task-title">{task.prompt}</div>
-              {task.description && (
-                <div className="task-desc">{task.description}</div>
-              )}
 
-              {stage === "work" && task.options?.required_text && (
-                <div className="answer">
-                  <label htmlFor="extraText">
-                    {task.options.required_text.label}
-                  </label>
-                  <textarea
-                    id="extraText"
-                    placeholder="Type your answer…"
-                    value={extraText}
-                    onChange={(e) => setExtraText(e.target.value)}
-                    onFocus={() => setExpanded(true)}
-                  />
-                  {!requiredTextOk && (
-                    <div className="char-hint">
-                      At least {requiredTextMin} characters (
-                      {extraText.trim().length}/{requiredTextMin})
+              {/* (a) Task screen: prompt + completion control only. The ease
+                  question never appears here — "that" must refer to a
+                  finished task. */}
+              {stage === "work" && (
+                <>
+                  <div className="task-title">{task.prompt}</div>
+                  {task.description && (
+                    <div className="task-desc">{task.description}</div>
+                  )}
+                  {task.options?.required_text && (
+                    <div className="answer">
+                      <label htmlFor="extraText">
+                        {task.options.required_text.label}
+                      </label>
+                      <textarea
+                        id="extraText"
+                        placeholder="Type your answer…"
+                        value={extraText}
+                        onChange={(e) => setExtraText(e.target.value)}
+                        onFocus={() => setExpanded(true)}
+                      />
+                      {!requiredTextOk && (
+                        <div className="char-hint">
+                          At least {requiredTextMin} characters (
+                          {extraText.trim().length}/{requiredTextMin})
+                        </div>
+                      )}
                     </div>
                   )}
-                </div>
+                </>
               )}
 
+              {/* (b) Ease rating: its own step, no task prompt repeated. */}
               {stage === "rate" && (
                 <div className="answer">
-                  <span className="stage-label">
+                  <div className="task-title">
                     How easy or difficult was that?
-                  </span>
+                  </div>
                   <div className="scale">
                     {[1, 2, 3, 4, 5, 6, 7].map((v) => (
                       <button
@@ -907,12 +916,13 @@ export default function Runner({
                 </div>
               )}
 
+              {/* (c) Conditional follow-up: its own step. */}
               {stage === "followup" && (
                 <div className="answer">
-                  <span className="stage-label">
-                    What got in the way?{" "}
-                    <span style={{ opacity: 0.7 }}>(optional)</span>
-                  </span>
+                  <div className="task-title">What got in the way?</div>
+                  <div className="task-desc">
+                    Optional — leave blank to continue.
+                  </div>
                   <textarea
                     placeholder="Tell us what made it hard…"
                     value={followup}
@@ -1038,24 +1048,33 @@ export default function Runner({
 
         {phase === "test" && task.type === "usability_task" && (
           <div className="panel-foot">
-            {stage === "work" && (
-              <>
+            {stage === "work" &&
+              (task.options?.single_continue ? (
                 <button
                   className="btn"
                   disabled={submitting || !requiredTextOk}
                   onClick={() => selfReport("success_claimed")}
                 >
-                  Done — I did it
+                  Continue
                 </button>
-                <button
-                  className="btn ghost"
-                  disabled={submitting || !requiredTextOk}
-                  onClick={() => selfReport("gave_up")}
-                >
-                  I couldn&apos;t figure it out
-                </button>
-              </>
-            )}
+              ) : (
+                <>
+                  <button
+                    className="btn"
+                    disabled={submitting || !requiredTextOk}
+                    onClick={() => selfReport("success_claimed")}
+                  >
+                    Done — I did it
+                  </button>
+                  <button
+                    className="btn ghost"
+                    disabled={submitting || !requiredTextOk}
+                    onClick={() => selfReport("gave_up")}
+                  >
+                    I couldn&apos;t figure it out
+                  </button>
+                </>
+              ))}
             {stage === "rate" && (
               <button
                 className="btn"
