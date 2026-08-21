@@ -2,7 +2,7 @@ export default function Home() {
   return (
     <main className="flex flex-1 flex-col items-center justify-center gap-4 bg-[#14161B] text-[#EDEFF3]">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/logo.svg" alt="" width={96} height={96} />
+      <img src="/logo.svg" alt="" width={116} height={116} />
       {/* Lighter tint of the logo purple — #5B3E96 lacks contrast on the
           dark background. */}
       <h1 className="text-3xl font-semibold tracking-tight text-[#8B6FC4]">
