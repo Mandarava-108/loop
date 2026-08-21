@@ -104,6 +104,38 @@ export default function Runner({
   const [screenedOutMessage, setScreenedOutMessage] = useState("");
   const [consentError, setConsentError] = useState(false);
   const requireRecording = test.config?.REQUIRE_RECORDING === true;
+
+  // Swipe on the sheet grip: down collapses, up expands (plus tap-to-toggle).
+  const touchStartYRef = useRef<number | null>(null);
+  const swipedRef = useRef(false);
+
+  function onGripTouchStart(e: React.TouchEvent) {
+    touchStartYRef.current = e.touches[0]?.clientY ?? null;
+    swipedRef.current = false;
+  }
+
+  function onGripTouchEnd(e: React.TouchEvent) {
+    const startY = touchStartYRef.current;
+    touchStartYRef.current = null;
+    if (startY === null) return;
+    const dy = (e.changedTouches[0]?.clientY ?? startY) - startY;
+    if (dy > 30) {
+      swipedRef.current = true;
+      setExpanded(false);
+    } else if (dy < -30) {
+      swipedRef.current = true;
+      setExpanded(true);
+    }
+  }
+
+  function onGripClick() {
+    // A swipe also fires a click afterwards — don't double-toggle.
+    if (swipedRef.current) {
+      swipedRef.current = false;
+      return;
+    }
+    setExpanded(!expanded);
+  }
   const screenerAnswersRef = useRef<Record<string, string | string[]>>({});
   const screenerTagsRef = useRef<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -398,7 +430,9 @@ export default function Runner({
   // --- task mode entry & recording method commitment ---
 
   function enterTaskMode() {
-    setExpanded(false); // collapse the mobile sheet; desktop is unaffected
+    // Sheet starts open so the first task's prompt (and its answer field)
+    // is immediately visible on mobile; desktop is unaffected.
+    setExpanded(true);
     shownAtRef.current = Date.now();
     startedAtRef.current = new Date().toISOString();
     setPhase("test");
@@ -717,7 +751,9 @@ export default function Runner({
           className="sheet-grip"
           aria-expanded={expanded}
           aria-controls="panelBody"
-          onClick={() => setExpanded(!expanded)}
+          onClick={onGripClick}
+          onTouchStart={onGripTouchStart}
+          onTouchEnd={onGripTouchEnd}
         >
           <span className="grip-bar" />
           <span className="grip-row">
