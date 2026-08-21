@@ -714,19 +714,6 @@ export default function Runner({
   // a participant's first sight of it must be the first task, not before.
   const qmode = phase !== "test" || task?.options?.fullscreen === true;
 
-  // Mobile sheet size: one of two fixed heights, decided per step so the
-  // sheet never resizes mid-step — "tall" for text-heavy steps, "short"
-  // for light ones. (No effect on desktop or question mode.)
-  const sheetSize: "short" | "tall" = (() => {
-    if (phase !== "test") return "tall";
-    if (task.type === "usability_task") {
-      if (stage === "rate") return task.options?.confirm ? "tall" : "short";
-      if (stage === "followup") return "tall";
-      if (task.options?.required_text) return "tall";
-      return (task.description?.length ?? 0) > 140 ? "tall" : "short";
-    }
-    return task.type === "open_text" ? "tall" : "short";
-  })();
 
   return (
     <div className={`runner${qmode ? " qmode" : ""}`}>
@@ -744,7 +731,7 @@ export default function Runner({
       <aside
         className={`panel${expanded ? " expanded" : ""}${
           desktopCollapsed ? " collapsed" : ""
-        } size-${sheetSize}`}
+        }`}
       >
         {/* desktop collapsed rail */}
         <button
