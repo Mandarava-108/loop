@@ -100,7 +100,11 @@
       "Bash(curl -s https://loop-nine-liart.vercel.app/favicon.svg)",
       "Bash(curl -s https://loop-nine-liart.vercel.app/logo.svg)",
       "Bash(git commit -m 'Cache-bust favicon URL *)",
-      "Bash(git commit -m 'PREFER_SCREEN flag: desktop pixel capture takes priority over rrweb *)"
+      "Bash(git commit -m 'PREFER_SCREEN flag: desktop pixel capture takes priority over rrweb *)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}\\\\n' https://melong.vercel.app/)",
+      "Bash(curl -s https://melong.vercel.app/t/ahs827sd)",
+      "Bash(python3 -c \"import json,sys; c=json.load\\(sys.stdin\\)[0]['config']; print\\({k:v for k,v in c.items\\(\\) if k!='screener'}\\)\")",
+      "Bash(git commit -m 'Screen recording: flush a chunk at each task boundary so abandoned sessions keep footage *)"
     ]
   }
 }

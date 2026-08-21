@@ -616,6 +616,11 @@ export default function Runner({
     if (tasks[current + 1]?.options?.fullscreen) {
       stopAllRecording();
       setExpanded(true);
+    } else if (recorderRef.current?.state === "recording") {
+      // Screen path: flush a chunk at every task boundary so an abandoned
+      // tab loses at most the in-progress task, not the whole recording
+      // (chunks otherwise only surface every CHUNK_MS).
+      recorderRef.current.requestData();
     }
     setCurrent(current + 1);
     setRating(null);
