@@ -216,12 +216,15 @@ export default async function ResponsesPage({
       (s?.tags ?? []).join("; "),
     ];
   };
-  const columns: ((c: Cell) => string)[] = [];
+  // One group of column functions PER TASK — each cell is only ever run
+  // through its own task's columns, keeping values under the right headers.
+  const taskColumns: ((c: Cell) => string)[][] = [];
   taskList.forEach((t, i) => {
+    const group: ((c: Cell) => string)[] = [];
     if (t.type === "usability_task") {
       const key = t.options?.key ?? `task_${i + 1}`;
       header.push(`${key}_result`, `${key}_ease`, `${key}_time_s`);
-      columns.push(
+      group.push(
         (c) => str(c.answer),
         (c) => str(c.detail?.ease),
         (c) => (c.answer !== null && c.seconds !== null ? String(c.seconds) : "")
@@ -229,32 +232,33 @@ export default async function ResponsesPage({
       const extraStore = t.options?.required_text?.store;
       if (extraStore) {
         header.push(extraStore);
-        columns.push((c) => str(c.detail?.[extraStore]));
+        group.push((c) => str(c.detail?.[extraStore]));
       }
       const confirmStore = t.options?.confirm?.store;
       if (confirmStore) {
         header.push(confirmStore);
-        columns.push((c) => str(c.detail?.[confirmStore]));
+        group.push((c) => str(c.detail?.[confirmStore]));
       }
       header.push(`${key}_followup`, `${key}_verified`);
-      columns.push(
+      group.push(
         (c) => str(c.detail?.followup),
         (c) => str(c.verified)
       );
     } else {
       const label = t.options?.key ?? `${i + 1}. ${t.prompt}`;
       header.push(label, `${label} (seconds)`);
-      columns.push(
+      group.push(
         (c) => str(c.answer),
         (c) => (c.answer !== null && c.seconds !== null ? String(c.seconds) : "")
       );
     }
+    taskColumns.push(group);
   });
   const csvRows = rows.map((s) => [
     s.sessionId,
     s.startedAt,
     ...screenerCsv(s.sessionId),
-    ...s.cells.flatMap((c) => columns.map((fn) => fn(c))),
+    ...s.cells.flatMap((c, i) => (taskColumns[i] ?? []).map((fn) => fn(c))),
   ]);
 
   return (
