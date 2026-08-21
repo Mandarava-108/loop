@@ -911,9 +911,9 @@ export default function Runner({
 
                   {task.options?.confirm && (
                     <>
-                      <span className="stage-label">
+                      <div className="task-title" style={{ marginTop: 28 }}>
                         {task.options.confirm.label}
-                      </span>
+                      </div>
                       <div className="choice-list">
                         {task.options.confirm.options.map((opt) => (
                           <button
