@@ -999,11 +999,8 @@ export default function Runner({
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
               </div>
-              <h2>That&apos;s everything</h2>
+              <h2>Thank you for participating!</h2>
               <p>Your responses have been saved. You can close this window.</p>
-              {method === "rrweb" && (
-                <p className="upload-note">Interaction recording finished.</p>
-              )}
               {uploadState === "uploading" && (
                 <p className="upload-note">Saving your screen recording…</p>
               )}
