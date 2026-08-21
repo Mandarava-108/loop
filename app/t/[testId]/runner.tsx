@@ -796,7 +796,8 @@ export default function Runner({
         <div className="panel-head">
           <div className="brand">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/favicon.svg" alt="" width={18} height={18} /> Melong
+            <img src="/favicon.svg" alt="" width={18} height={18} />{" "}
+            <span style={{ color: "#8B6FC4" }}>Melong</span>
             {recording && (
               <span className="rec-chip">
                 <span className="rec-dot" /> Recording

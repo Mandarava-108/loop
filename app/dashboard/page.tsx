@@ -31,7 +31,7 @@ export default async function DashboardPage() {
         <header className="mb-10 flex items-center gap-2.5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/favicon.svg" alt="" width={20} height={20} />
-          <span className="text-lg font-semibold tracking-tight">Melong</span>
+          <span className="text-lg font-semibold tracking-tight text-[#8B6FC4]">Melong</span>
           <div className="ml-auto flex items-center gap-4 text-sm text-[#9AA1AD]">
             <span className="hidden sm:inline">{user?.email}</span>
             <SignOutButton />
