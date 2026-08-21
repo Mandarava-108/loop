@@ -96,7 +96,10 @@
       "Bash(grep -rn 'Melong</span>\\\\|Melong$' app/dashboard/page.tsx app/login/page.tsx \"app/t/[testId]/runner.tsx\")",
       "Bash(perl -pi -e 's/#5B3E96/#5F53C9/g; s/#8B6FC4/#7C6FF0/g; s/#3A2566/#4237A0/g' public/logo.svg public/favicon.svg)",
       "Bash(perl -pi -e 's/#8B6FC4/#7C6FF0/g' app/page.tsx app/dashboard/page.tsx app/login/page.tsx \"app/t/[testId]/runner.tsx\")",
-      "Bash(git commit -m 'Logo and wordmark use the app accent purple *)"
+      "Bash(git commit -m 'Logo and wordmark use the app accent purple *)",
+      "Bash(curl -s https://loop-nine-liart.vercel.app/favicon.svg)",
+      "Bash(curl -s https://loop-nine-liart.vercel.app/logo.svg)",
+      "Bash(git commit -m 'Cache-bust favicon URL *)"
     ]
   }
 }
