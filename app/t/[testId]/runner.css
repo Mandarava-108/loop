@@ -218,15 +218,20 @@
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
     border-radius: 18px 18px 0 0;
     box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.45);
-    /* Two fixed expanded sizes so the sheet doesn't resize between steps:
-       "tall" for text-heavy steps, "short" for light ones. Overflow scrolls
-       inside the body. */
-    height: var(--sheet-collapsed);
-    transition: height 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+    /* The sheet wraps its content — as short as each step allows — and since
+       it's anchored to the screen bottom, the buttons always sit at the
+       bottom of the screen. Content taller than the cap scrolls inside. */
+    height: auto;
+    max-height: var(--sheet-collapsed);
+    transition: max-height 0.32s cubic-bezier(0.4, 0, 0.2, 1);
     padding-bottom: env(safe-area-inset-bottom);
   }
-  .runner .panel.expanded { height: min(80dvh, 660px); }
-  .runner .panel.expanded.size-short { height: min(340px, 62dvh); }
+  .runner .panel.expanded { max-height: min(80dvh, 660px); }
+  /* Inside the bottom sheet the body shrinks to its content... */
+  .runner .panel-body { flex: 0 1 auto; }
+  /* ...but full-screen question cards keep buttons pinned to the screen
+     bottom (body fills the card). */
+  .runner.qmode .panel-body { flex: 1 1 auto; }
   .runner .site-pane { padding-bottom: var(--sheet-collapsed); }
 
   .runner .sheet-grip {
