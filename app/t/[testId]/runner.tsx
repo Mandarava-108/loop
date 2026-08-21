@@ -725,6 +725,21 @@ export default function Runner({
             title="Website under test"
             onLoad={() => messageIframe({ type: "loop:probe" })}
           />
+          {/* Desktop: prominent drawer handle on the panel's edge */}
+          <button
+            className="edge-handle"
+            aria-label={
+              desktopCollapsed ? "Expand task panel" : "Collapse task panel"
+            }
+            title={desktopCollapsed ? "Show tasks" : "Hide tasks"}
+            onClick={() => setDesktopCollapsed(!desktopCollapsed)}
+          >
+            <svg viewBox="0 0 24 24">
+              <polyline
+                points={desktopCollapsed ? "15 18 9 12 15 6" : "9 18 15 12 9 6"}
+              />
+            </svg>
+          </button>
         </div>
       )}
 
