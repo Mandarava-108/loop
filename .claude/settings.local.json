@@ -83,7 +83,8 @@
       "Bash(git stash *)",
       "Bash(git commit -m 'Mobile: sheet wraps content \\(bottom-anchored, buttons stay at screen bottom\\); qmode cards keep pinned footer *)",
       "Bash(git commit -m 'Desktop: prominent drawer handle on the panel edge *)",
-      "Bash(git commit -m 'Rebrand: Loop -> Kora in all user-facing text *)"
+      "Bash(git commit -m 'Rebrand: Loop -> Kora in all user-facing text *)",
+      "Bash(git commit -m 'Desktop drawer handle sits near the top of the panel edge *)"
     ]
   }
 }
