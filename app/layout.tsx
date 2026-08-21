@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Kora",
+  title: "Melong",
   description: "Same-window usability testing",
 };
 

@@ -281,7 +281,7 @@ export default async function ResponsesPage({
           </div>
           {rows.length > 0 && (
             <ExportCsvButton
-              filename={`kora-responses-${test.id}.csv`}
+              filename={`melong-responses-${test.id}.csv`}
               header={header}
               rows={csvRows}
             />
