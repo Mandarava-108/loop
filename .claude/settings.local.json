@@ -76,7 +76,8 @@
       "Bash(git commit -m 'Mobile sheet hugs content; effort-weighted progress bar *)",
       "Bash(curl -s https://oqisnjggirhhueqzjntq.supabase.co/rest/v1/tests?select=id,title -H 'apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX')",
       "Bash(git commit -m 'Mobile sheet: two fixed expanded sizes instead of content-hugging *)",
-      "Bash(git commit -m 'Dashboard timestamps render in the viewer'\\\\''s timezone *)"
+      "Bash(git commit -m 'Dashboard timestamps render in the viewer'\\\\''s timezone *)",
+      "Bash(git commit -m 'Taller '\\\\''tall'\\\\'' sheet size so long tasks fit without cutting off inputs *)"
     ]
   }
 }

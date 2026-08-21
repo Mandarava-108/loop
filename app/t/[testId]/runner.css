@@ -225,7 +225,7 @@
     transition: height 0.32s cubic-bezier(0.4, 0, 0.2, 1);
     padding-bottom: env(safe-area-inset-bottom);
   }
-  .runner .panel.expanded { height: min(62dvh, 540px); }
+  .runner .panel.expanded { height: min(80dvh, 660px); }
   .runner .panel.expanded.size-short { height: min(340px, 62dvh); }
   .runner .site-pane { padding-bottom: var(--sheet-collapsed); }
 
