@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import DeleteSessionButton from "./delete-session-button";
 import ExportCsvButton from "./export-csv-button";
 import VerifiedSelect from "./verified-select";
 
@@ -339,6 +340,7 @@ export default async function ResponsesPage({
                           timeStyle: "short",
                         })}
                       </div>
+                      <DeleteSessionButton sessionId={s.sessionId} />
                     </td>
                     <td className="whitespace-nowrap px-4 py-3">
                       {hasRecording.has(s.sessionId) ? (
