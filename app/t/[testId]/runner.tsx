@@ -795,7 +795,8 @@ export default function Runner({
 
         <div className="panel-head">
           <div className="brand">
-            <span className="brand-mark" /> Melong
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/favicon.svg" alt="" width={18} height={18} /> Melong
             {recording && (
               <span className="rec-chip">
                 <span className="rec-dot" /> Recording

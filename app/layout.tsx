@@ -14,6 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Melong",
+  icons: { icon: "/favicon.svg" },
   description: "Same-window usability testing",
 };
 

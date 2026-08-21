@@ -29,10 +29,8 @@ export default async function DashboardPage() {
     <main className="flex-1 bg-[#14161B] text-[#EDEFF3]">
       <div className="mx-auto max-w-3xl px-5 py-10">
         <header className="mb-10 flex items-center gap-2.5">
-          <span
-            aria-hidden
-            className="h-[18px] w-[18px] -rotate-45 rounded-full border-[3px] border-[#7C6FF0] border-r-transparent"
-          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/favicon.svg" alt="" width={20} height={20} />
           <span className="text-lg font-semibold tracking-tight">Melong</span>
           <div className="ml-auto flex items-center gap-4 text-sm text-[#9AA1AD]">
             <span className="hidden sm:inline">{user?.email}</span>

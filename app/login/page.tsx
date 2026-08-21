@@ -33,10 +33,8 @@ export default function LoginPage() {
     <main className="flex flex-1 flex-col items-center justify-center bg-[#14161B] px-4 text-[#EDEFF3]">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex items-center gap-2.5">
-          <span
-            aria-hidden
-            className="h-[18px] w-[18px] -rotate-45 rounded-full border-[3px] border-[#7C6FF0] border-r-transparent"
-          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/favicon.svg" alt="" width={20} height={20} />
           <span className="text-lg font-semibold tracking-tight">Melong</span>
         </div>
 

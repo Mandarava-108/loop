@@ -89,7 +89,8 @@
       "Bash(perl -0pi -e 's/\\\\n  \\\\.runner \\\\.panel-collapse \\\\{[^}]*\\\\}\\\\n  \\\\.runner \\\\.panel-collapse:hover \\\\{[^}]*\\\\}\\\\n  \\\\.runner \\\\.panel-collapse svg \\\\{[^}]*\\\\}\\\\n  \\\\.runner \\\\.panel-collapse:hover svg \\\\{[^}]*\\\\}\\\\n//' \"app/t/[testId]/runner.css\")",
       "Bash(perl -ni -e 'print unless /panel-collapse/' \"app/t/[testId]/runner.css\")",
       "Bash(git commit -m 'Remove redundant header collapse chevron \\(edge handle covers it\\) *)",
-      "Bash(git commit -m 'Rebrand: Kora -> Melong *)"
+      "Bash(git commit -m 'Rebrand: Kora -> Melong *)",
+      "Bash(git commit -m 'Melong logo: full mark on welcome, favicon, small mark in headers *)"
     ]
   }
 }
