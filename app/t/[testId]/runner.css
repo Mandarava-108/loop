@@ -123,7 +123,6 @@
 
 /* desktop-only elements: hidden by default (mobile) */
 .runner .rail { display: none; }
-.runner .panel-collapse { display: none; }
 .runner .edge-handle { display: none; }
 
 /* ---------- desktop: collapsible panel ---------- */
@@ -148,19 +147,6 @@
     opacity: 0;
     pointer-events: none;
   }
-
-  .runner .panel-collapse {
-    display: inline-flex; align-items: center; justify-content: center;
-    margin-left: auto; width: 28px; height: 28px; border-radius: 8px;
-    border: 0; background: none; color: inherit; cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .runner .panel-collapse:hover { background: var(--chrome-raised); }
-  .runner .panel-collapse svg {
-    width: 16px; height: 16px; stroke: var(--ink-dim); stroke-width: 2.2;
-    fill: none; stroke-linecap: round; stroke-linejoin: round; display: block;
-  }
-  .runner .panel-collapse:hover svg { stroke: var(--ink); }
 
   /* Prominent drawer handle on the boundary between site and panel. */
   .runner .edge-handle {
@@ -226,7 +212,6 @@
   width: 100%; max-width: 620px; margin: 0 auto;
 }
 .runner.qmode .sheet-grip { display: none; }
-.runner.qmode .panel-collapse { display: none; }
 .runner.qmode .rail { display: none; }
 
 /* ---------- mobile: bottom sheet ---------- */

@@ -801,15 +801,6 @@ export default function Runner({
                 <span className="rec-dot" /> Recording
               </span>
             )}
-            <button
-              className="panel-collapse"
-              aria-label="Collapse task panel"
-              onClick={() => setDesktopCollapsed(true)}
-            >
-              <svg viewBox="0 0 24 24">
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </button>
           </div>
           <div className="progress-wrap">
             <div className="progress-label">

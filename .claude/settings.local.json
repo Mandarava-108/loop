@@ -85,7 +85,10 @@
       "Bash(git commit -m 'Desktop: prominent drawer handle on the panel edge *)",
       "Bash(git commit -m 'Rebrand: Loop -> Kora in all user-facing text *)",
       "Bash(git commit -m 'Desktop drawer handle sits near the top of the panel edge *)",
-      "Bash(git commit -m 'Fix CSV export: pair each task'\\\\''s cell with its own columns *)"
+      "Bash(git commit -m 'Fix CSV export: pair each task'\\\\''s cell with its own columns *)",
+      "Bash(perl -0pi -e 's/\\\\n  \\\\.runner \\\\.panel-collapse \\\\{[^}]*\\\\}\\\\n  \\\\.runner \\\\.panel-collapse:hover \\\\{[^}]*\\\\}\\\\n  \\\\.runner \\\\.panel-collapse svg \\\\{[^}]*\\\\}\\\\n  \\\\.runner \\\\.panel-collapse:hover svg \\\\{[^}]*\\\\}\\\\n//' \"app/t/[testId]/runner.css\")",
+      "Bash(perl -ni -e 'print unless /panel-collapse/' \"app/t/[testId]/runner.css\")",
+      "Bash(git commit -m 'Remove redundant header collapse chevron \\(edge handle covers it\\) *)"
     ]
   }
 }
