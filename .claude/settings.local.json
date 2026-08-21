@@ -72,7 +72,8 @@
       "Bash(git commit -m 'Dashboard: duplicate and delete tests *)",
       "Bash(git commit -m 'Consent copy: flowing plain-language version *)",
       "Bash(git commit -m 'Mobile sheet: open on first task, swipe gestures on grip *)",
-      "Bash(git commit -m 'Mobile: 16px inputs to prevent iOS focus zoom *)"
+      "Bash(git commit -m 'Mobile: 16px inputs to prevent iOS focus zoom *)",
+      "Bash(git commit -m 'Mobile sheet hugs content; effort-weighted progress bar *)"
     ]
   }
 }

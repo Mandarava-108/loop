@@ -218,11 +218,14 @@
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
     border-radius: 18px 18px 0 0;
     box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.45);
-    height: var(--sheet-collapsed);
-    transition: height 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+    /* The sheet hugs its content: as short as the current step allows,
+       capped so the site always stays partly visible. */
+    height: auto;
+    max-height: var(--sheet-collapsed);
+    transition: max-height 0.32s cubic-bezier(0.4, 0, 0.2, 1);
     padding-bottom: env(safe-area-inset-bottom);
   }
-  .runner .panel.expanded { height: min(72dvh, 540px); }
+  .runner .panel.expanded { max-height: min(72dvh, 540px); }
   .runner .site-pane { padding-bottom: var(--sheet-collapsed); }
 
   .runner .sheet-grip {
@@ -260,7 +263,8 @@
 
   /* Question mode on mobile: a full-screen card, not a bottom sheet. */
   .runner.qmode .panel {
-    position: static; height: 100dvh; border-radius: 0; border-top: 0;
+    position: static; height: 100dvh; max-height: none;
+    border-radius: 0; border-top: 0;
     box-shadow: none;
   }
   .runner.qmode .panel-head { display: block; }
