@@ -218,16 +218,15 @@
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
     border-radius: 18px 18px 0 0;
     box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.45);
-    /* The sheet wraps its content exactly — no cut-off, no dead space under
-       the inputs. Capped so the site always stays partly visible. */
-    height: auto;
-    max-height: var(--sheet-collapsed);
-    transition: max-height 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Two fixed expanded sizes so the sheet doesn't resize between steps:
+       "tall" for text-heavy steps, "short" for light ones. Overflow scrolls
+       inside the body. */
+    height: var(--sheet-collapsed);
+    transition: height 0.32s cubic-bezier(0.4, 0, 0.2, 1);
     padding-bottom: env(safe-area-inset-bottom);
   }
-  .runner .panel.expanded { max-height: min(80dvh, 660px); }
-  /* Footer follows the content instead of pinning to the sheet bottom. */
-  .runner .panel-body { flex: 0 1 auto; }
+  .runner .panel.expanded { height: min(80dvh, 660px); }
+  .runner .panel.expanded.size-short { height: min(340px, 62dvh); }
   .runner .site-pane { padding-bottom: var(--sheet-collapsed); }
 
   .runner .sheet-grip {
