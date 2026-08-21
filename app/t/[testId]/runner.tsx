@@ -769,37 +769,27 @@ export default function Runner({
             <>
               <div className="task-eyebrow">Consent</div>
               <div className="task-title">Before you start</div>
-              {typeof test.config?.duration_text === "string" && (
-                <div className="task-desc">
-                  This study takes {test.config.duration_text}.
-                </div>
-              )}
               <div className="task-desc">
-                If you agree, this test records:
+                This study takes{" "}
+                {typeof test.config?.duration_text === "string"
+                  ? test.config.duration_text
+                  : "a few minutes"}{" "}
+                and records how you use the test website: a screen recording of
+                this browser tab, your taps, scrolling and typing (anything you
+                type into the site is masked), and your task answers.
               </div>
-              <ul className="consent-list">
-                <li>
-                  your activity on the website being tested while you do the
-                  tasks — as a screen recording of this browser tab, or as your
-                  interactions with the site (taps, scrolling, typing; text you
-                  type into the site is masked and never recorded)
-                </li>
-                <li>your task answers</li>
-              </ul>
               <div className="task-desc">
-                <strong>Why:</strong> usability research — to understand where
-                this website is easy or hard to use.
-                <br />
-                <strong>Who can see it:</strong> only the researcher who created
-                this test.
-                <br />
-                <strong>How long:</strong> recordings are automatically deleted
-                after 30 days.
+                Only the researcher running this test can see the recordings,
+                and they&apos;re deleted after 30 days. We use them for one
+                thing: finding out where the website is easy or hard to use.
               </div>
               <div className="task-desc">
                 {requireRecording
-                  ? "This study only works with recording, so it can't continue without your consent."
+                  ? "Recording is required for the study to work — if you'd rather not, simply close this tab."
                   : "Prefer not to be recorded? You can still take the test."}
+              </div>
+              <div className="task-desc" style={{ color: "var(--ink)" }}>
+                Do you agree to take part?
               </div>
               {consentError && (
                 <div className="save-error" role="alert" style={{ textAlign: "left" }}>
