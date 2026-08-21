@@ -442,10 +442,17 @@ export default function Runner({
     shownAtRef.current = Date.now();
     startedAtRef.current = new Date().toISOString();
     setPhase("test");
-    // The iframe mounts now. If the snippet announces itself, rrweb wins;
-    // otherwise a held screen stream is committed after a grace period.
+    // The iframe mounts now. Default: if the snippet announces itself, rrweb
+    // wins; otherwise a held screen stream is committed after a grace period.
+    // With PREFER_SCREEN, a held stream is committed immediately — pixel
+    // capture shows real video playback, which DOM replays can't. Devices
+    // without screen capture (phones) still fall through to rrweb.
     if (streamRef.current) {
-      screenFallbackRef.current = setTimeout(() => void commitScreen(), 4000);
+      if (test.config?.PREFER_SCREEN === true) {
+        void commitScreen();
+      } else {
+        screenFallbackRef.current = setTimeout(() => void commitScreen(), 4000);
+      }
     }
   }
 

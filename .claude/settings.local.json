@@ -99,7 +99,8 @@
       "Bash(git commit -m 'Logo and wordmark use the app accent purple *)",
       "Bash(curl -s https://loop-nine-liart.vercel.app/favicon.svg)",
       "Bash(curl -s https://loop-nine-liart.vercel.app/logo.svg)",
-      "Bash(git commit -m 'Cache-bust favicon URL *)"
+      "Bash(git commit -m 'Cache-bust favicon URL *)",
+      "Bash(git commit -m 'PREFER_SCREEN flag: desktop pixel capture takes priority over rrweb *)"
     ]
   }
 }
