@@ -795,7 +795,7 @@ export default function Runner({
 
         <div className="panel-head">
           <div className="brand">
-            <span className="brand-mark" /> Loop
+            <span className="brand-mark" /> Kora
             {recording && (
               <span className="rec-chip">
                 <span className="rec-dot" /> Recording

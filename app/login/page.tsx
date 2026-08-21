@@ -37,7 +37,7 @@ export default function LoginPage() {
             aria-hidden
             className="h-[18px] w-[18px] -rotate-45 rounded-full border-[3px] border-[#7C6FF0] border-r-transparent"
           />
-          <span className="text-lg font-semibold tracking-tight">Loop</span>
+          <span className="text-lg font-semibold tracking-tight">Kora</span>
         </div>
 
         <h1 className="mb-1 text-xl font-semibold">Researcher sign in</h1>

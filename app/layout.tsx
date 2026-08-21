@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Loop",
+  title: "Kora",
   description: "Same-window usability testing",
 };
 

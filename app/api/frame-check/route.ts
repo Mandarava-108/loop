@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     method,
     redirect: "follow" as const,
     signal: AbortSignal.timeout(8000),
-    headers: { "user-agent": "Mozilla/5.0 (compatible; LoopFrameCheck/1.0)" },
+    headers: { "user-agent": "Mozilla/5.0 (compatible; KoraFrameCheck/1.0)" },
   });
 
   let res: Response;

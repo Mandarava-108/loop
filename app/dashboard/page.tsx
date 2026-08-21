@@ -33,7 +33,7 @@ export default async function DashboardPage() {
             aria-hidden
             className="h-[18px] w-[18px] -rotate-45 rounded-full border-[3px] border-[#7C6FF0] border-r-transparent"
           />
-          <span className="text-lg font-semibold tracking-tight">Loop</span>
+          <span className="text-lg font-semibold tracking-tight">Kora</span>
           <div className="ml-auto flex items-center gap-4 text-sm text-[#9AA1AD]">
             <span className="hidden sm:inline">{user?.email}</span>
             <SignOutButton />

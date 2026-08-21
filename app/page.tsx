@@ -5,7 +5,7 @@ export default function Home() {
         aria-hidden
         className="h-10 w-10 -rotate-45 rounded-full border-[5px] border-[#7C6FF0] border-r-transparent"
       />
-      <h1 className="text-3xl font-semibold tracking-tight">Loop</h1>
+      <h1 className="text-3xl font-semibold tracking-tight">Kora</h1>
       <p className="text-sm text-[#9AA1AD]">
         Same-window usability testing.
       </p>
