@@ -62,7 +62,9 @@
       "Bash(curl -s -X POST https://loop-nine-liart.vercel.app/api/rrweb/ingest -H 'Content-Type: text/plain' -d '{\"sessionId\":\"f2c03599-5e7b-41cd-a3c5-5da5b1dae9ce\",\"events\":[{\"type\":51,\"data\":{\"note\":\"seq-probe\"},\"timestamp\":9}]}')",
       "Bash(git commit -m 'Task screens: short titles, ease rating and follow-up as separate steps, single-continue P1.1 *)",
       "Bash(grep -n \"Question \\\\${screenerIndex\" \"app/t/[testId]/runner.tsx\")",
-      "Bash(git commit -m 'Screener: muted progress line, multi-select hint line, languages options trimmed *)"
+      "Bash(git commit -m 'Screener: muted progress line, multi-select hint line, languages options trimmed *)",
+      "Bash(python3 -c ' *)",
+      "Bash(git commit -m 'Progress bar tracks the whole study: consent, screener, tasks *)"
     ]
   }
 }

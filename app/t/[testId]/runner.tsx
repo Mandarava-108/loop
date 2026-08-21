@@ -133,7 +133,15 @@ export default function Runner({
 
   const done = phase === "done";
   const task = tasks[current];
-  const pct = done ? 100 : phase === "consent" ? 0 : Math.round((current / tasks.length) * 100);
+  // Overall progress across the whole study: consent -> screener -> tasks.
+  const totalSteps = 1 + screenerSteps.length + tasks.length;
+  const stepIndex =
+    phase === "consent" || phase === "no_consent"
+      ? 0
+      : phase === "screener" || phase === "screened_out"
+        ? 1 + screenerIndex
+        : 1 + screenerSteps.length + current;
+  const pct = done ? 100 : Math.round((stepIndex / totalSteps) * 100);
   const isLast = current === tasks.length - 1;
 
   // A new task (or phase) needs the full panel — auto-expand the desktop rail.
