@@ -64,7 +64,8 @@
       "Bash(grep -n \"Question \\\\${screenerIndex\" \"app/t/[testId]/runner.tsx\")",
       "Bash(git commit -m 'Screener: muted progress line, multi-select hint line, languages options trimmed *)",
       "Bash(python3 -c ' *)",
-      "Bash(git commit -m 'Progress bar tracks the whole study: consent, screener, tasks *)"
+      "Bash(git commit -m 'Progress bar tracks the whole study: consent, screener, tasks *)",
+      "Bash(git commit -m 'Task self-report button: Done — Next *)"
     ]
   }
 }

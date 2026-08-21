@@ -1077,7 +1077,7 @@ export default function Runner({
                     disabled={submitting || !requiredTextOk}
                     onClick={() => selfReport("success_claimed")}
                   >
-                    Done — I did it
+                    Done — Next
                   </button>
                   <button
                     className="btn ghost"
