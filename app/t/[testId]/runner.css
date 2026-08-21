@@ -251,6 +251,13 @@
   .runner .m-progress { height: 3px; background: var(--chrome-border); border-radius: 2px; overflow: hidden; margin-top: 10px; }
   .runner .m-progress div { height: 100%; background: var(--accent); width: 0%; transition: width 0.4s; }
 
+  /* iOS auto-zooms the page when a focused input's font is under 16px —
+     keep all text inputs at 16px on mobile so focus never zooms. */
+  .runner textarea,
+  .runner input {
+    font-size: 16px;
+  }
+
   /* Question mode on mobile: a full-screen card, not a bottom sheet. */
   .runner.qmode .panel {
     position: static; height: 100dvh; border-radius: 0; border-top: 0;
