@@ -10,6 +10,7 @@ export type TaskOptions = {
   optional?: boolean;
   fullscreen?: boolean; // render as a question card, site not visible
   single_continue?: boolean; // one Continue button instead of did-it/gave-up
+  report_labels?: { done?: string; gave_up?: string }; // custom self-report labels
   required_text?: { label: string; min?: number; store?: string };
   confirm?: { label: string; options: string[]; store?: string };
   success_criteria?: string;
@@ -1077,14 +1078,15 @@ export default function Runner({
                     disabled={submitting || !requiredTextOk}
                     onClick={() => selfReport("success_claimed")}
                   >
-                    Done — Next
+                    {task.options?.report_labels?.done ?? "Done — Next"}
                   </button>
                   <button
                     className="btn ghost"
                     disabled={submitting || !requiredTextOk}
                     onClick={() => selfReport("gave_up")}
                   >
-                    I couldn&apos;t figure it out
+                    {task.options?.report_labels?.gave_up ??
+                      "I couldn't figure it out"}
                   </button>
                 </>
               ))}
