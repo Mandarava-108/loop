@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import LocalTime from "../../../local-time";
 import ChunkPlayer from "./chunk-player";
 import RrwebPlayer from "./rrweb-player";
 
@@ -72,10 +73,7 @@ export default async function WatchRecordingPage({
         </h1>
         <p className="mt-1 mb-6 text-sm text-[#9AA1AD]">
           Session <span className="font-mono text-xs">{sessionId.slice(0, 8)}</span>{" "}
-          · {new Date(session.created_at).toLocaleString(undefined, {
-            dateStyle: "medium",
-            timeStyle: "short",
-          })}{" "}
+          · <LocalTime iso={session.created_at} />{" "}
           · {urls.length} segment{urls.length === 1 ? "" : "s"}
           {totalBytes > 0 &&
             ` · ${(totalBytes / (1024 * 1024)).toFixed(1)} MB`}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import LocalTime from "../../local-time";
 import DeleteSessionButton from "./delete-session-button";
 import ExportCsvButton from "./export-csv-button";
 import VerifiedSelect from "./verified-select";
@@ -335,10 +336,7 @@ export default async function ResponsesPage({
                         {s.sessionId.slice(0, 8)}
                       </div>
                       <div className="mt-0.5 text-xs text-[#9AA1AD]">
-                        {new Date(s.startedAt).toLocaleString(undefined, {
-                          dateStyle: "medium",
-                          timeStyle: "short",
-                        })}
+                        <LocalTime iso={s.startedAt} />
                       </div>
                       <DeleteSessionButton sessionId={s.sessionId} />
                     </td>

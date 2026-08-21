@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import CopyLinkButton from "./copy-link-button";
+import LocalTime from "./local-time";
 import SignOutButton from "./sign-out-button";
 import TestRowActions from "./test-row-actions";
 
@@ -74,7 +75,7 @@ export default async function DashboardPage() {
                     <p className="mt-0.5 truncate text-sm text-[#9AA1AD]">
                       {t.site_url} · {t.tasks[0]?.count ?? 0} task
                       {(t.tasks[0]?.count ?? 0) === 1 ? "" : "s"} ·{" "}
-                      {new Date(t.created_at).toLocaleDateString()}
+                      <LocalTime iso={t.created_at} dateOnly />
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
