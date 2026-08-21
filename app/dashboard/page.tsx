@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import CopyLinkButton from "./copy-link-button";
 import SignOutButton from "./sign-out-button";
+import TestRowActions from "./test-row-actions";
 
 type TestRow = {
   id: string;
@@ -90,6 +91,7 @@ export default async function DashboardPage() {
                     >
                       Edit
                     </Link>
+                    <TestRowActions testId={t.id} title={t.title} />
                   </div>
                 </div>
               </li>
