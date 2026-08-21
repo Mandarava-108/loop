@@ -35,7 +35,7 @@ export default function LoginPage() {
         <div className="mb-8 flex items-center gap-2.5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/favicon.svg" alt="" width={20} height={20} />
-          <span className="text-lg font-semibold tracking-tight text-[#8B6FC4]">Melong</span>
+          <span className="text-lg font-semibold tracking-tight text-[#7C6FF0]">Melong</span>
         </div>
 
         <h1 className="mb-1 text-xl font-semibold">Researcher sign in</h1>

@@ -3,9 +3,7 @@ export default function Home() {
     <main className="flex flex-1 flex-col items-center justify-center gap-4 bg-[#14161B] text-[#EDEFF3]">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/logo.svg" alt="" width={116} height={116} />
-      {/* Lighter tint of the logo purple — #5B3E96 lacks contrast on the
-          dark background. */}
-      <h1 className="text-3xl font-semibold tracking-tight text-[#8B6FC4]">
+      <h1 className="text-3xl font-semibold tracking-tight text-[#7C6FF0]">
         Melong
       </h1>
       <p className="text-sm text-[#9AA1AD]">
