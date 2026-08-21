@@ -15,6 +15,7 @@ export default function RrwebPlayer({ urls }: { urls: string[] }) {
     const container = containerRef.current;
     if (!container) return;
     let cancelled = false;
+    let muteTimer: ReturnType<typeof setInterval> | undefined;
     // rrweb-player doesn't expose a destroy API on its Svelte component in
     // all versions — clearing the container on cleanup is the reliable path.
     (async () => {
@@ -45,6 +46,18 @@ export default function RrwebPlayer({ urls }: { urls: string[] }) {
             showController: true,
           },
         });
+        // Browsers refuse un-muted autoplay, which keeps replayed <video>
+        // elements frozen on black. Muting them lets the replayer's recorded
+        // play events actually run (when the captured src is a reachable
+        // URL). The researcher can unmute via the video's own controls.
+        muteTimer = setInterval(() => {
+          const frame = container.querySelector("iframe");
+          frame?.contentDocument
+            ?.querySelectorAll("video, audio")
+            .forEach((m) => {
+              (m as HTMLMediaElement).muted = true;
+            });
+        }, 1000);
         setLoading(false);
       } catch {
         if (!cancelled) {
@@ -55,6 +68,7 @@ export default function RrwebPlayer({ urls }: { urls: string[] }) {
     })();
     return () => {
       cancelled = true;
+      if (muteTimer) clearInterval(muteTimer);
       container.innerHTML = "";
     };
   }, [urls]);
