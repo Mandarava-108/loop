@@ -107,7 +107,8 @@
       "Bash(git commit -m 'Screen recording: flush a chunk at each task boundary so abandoned sessions keep footage *)",
       "Bash(curl -s -L -m 20 \"https://garchen-archive-admin-staging-lbsje.ondigitalocean.app/events/player-test-history-of-the-copper-colored-mountain-gyaling-horn-melody-single-session-event/history-of-the-copper-colored-mountain-gyaling-horn-melody?interpretation=1\")",
       "Bash(git commit -m 'Replay: mute reconstructed media so recorded play events can run *)",
-      "Bash(git commit -m 'Participant code: text screener step, shown on sessions and in CSV *)"
+      "Bash(git commit -m 'Participant code: text screener step, shown on sessions and in CSV *)",
+      "Bash(git commit -m 'Back navigation where data-safe: screener steps, ease-to-task, follow-up-to-ease *)"
     ]
   }
 }

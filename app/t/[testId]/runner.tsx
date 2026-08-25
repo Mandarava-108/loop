@@ -536,6 +536,22 @@ export default function Runner({
     // Fail-soft: an insert error never blocks the participant.
   }
 
+  function screenerBack() {
+    if (screenerIndex === 0) return;
+    const prev = screenerSteps[screenerIndex - 1];
+    const saved = screenerAnswersRef.current[prev.id];
+    if (prev.input === "text") {
+      setScreenerText(typeof saved === "string" ? saved : "");
+      setScreenerSelected([]);
+    } else {
+      setScreenerSelected(
+        Array.isArray(saved) ? saved : typeof saved === "string" ? [saved] : []
+      );
+      setScreenerText("");
+    }
+    setScreenerIndex(screenerIndex - 1);
+  }
+
   async function screenerContinue() {
     const step = screenerSteps[screenerIndex];
     screenerAnswersRef.current[step.id] =
@@ -1136,6 +1152,15 @@ export default function Runner({
             >
               {submitting ? "Saving…" : "Continue"}
             </button>
+            {screenerIndex > 0 && (
+              <button
+                className="btn ghost"
+                disabled={submitting}
+                onClick={screenerBack}
+              >
+                ← Back
+              </button>
+            )}
           </div>
         )}
 
@@ -1170,30 +1195,55 @@ export default function Runner({
                 </>
               ))}
             {stage === "rate" && (
-              <button
-                className="btn"
-                disabled={
-                  submitting ||
-                  ease === null ||
-                  (!!task.options?.confirm && confirmChoice === null)
-                }
-                onClick={continueFromRate}
-              >
-                {submitting
-                  ? "Saving…"
-                  : isLast && !(ease !== null && (ease <= 3 || result === "gave_up"))
-                    ? "Finish test"
-                    : "Continue"}
-              </button>
+              <>
+                <button
+                  className="btn"
+                  disabled={
+                    submitting ||
+                    ease === null ||
+                    (!!task.options?.confirm && confirmChoice === null)
+                  }
+                  onClick={continueFromRate}
+                >
+                  {submitting
+                    ? "Saving…"
+                    : isLast && !(ease !== null && (ease <= 3 || result === "gave_up"))
+                      ? "Finish test"
+                      : "Continue"}
+                </button>
+                <button
+                  className="btn ghost"
+                  disabled={submitting}
+                  onClick={() => {
+                    // Nothing is saved until the loop finishes — going back
+                    // to the task is free. Their typed answer is kept.
+                    setResult(null);
+                    setEase(null);
+                    setConfirmChoice(null);
+                    setStage("work");
+                  }}
+                >
+                  ← Back to the task
+                </button>
+              </>
             )}
             {stage === "followup" && (
-              <button
-                className="btn"
-                disabled={submitting}
-                onClick={() => void finalizeUsability(result!, followup)}
-              >
-                {submitting ? "Saving…" : isLast ? "Finish test" : "Continue"}
-              </button>
+              <>
+                <button
+                  className="btn"
+                  disabled={submitting}
+                  onClick={() => void finalizeUsability(result!, followup)}
+                >
+                  {submitting ? "Saving…" : isLast ? "Finish test" : "Continue"}
+                </button>
+                <button
+                  className="btn ghost"
+                  disabled={submitting}
+                  onClick={() => setStage("rate")}
+                >
+                  ← Back
+                </button>
+              </>
             )}
             {saveError && (
               <div className="save-error" role="alert">
