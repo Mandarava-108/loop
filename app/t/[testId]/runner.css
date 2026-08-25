@@ -133,7 +133,7 @@
 .runner .edge-handle { display: none; }
 
 /* ---------- desktop: collapsible panel ---------- */
-@media (min-width: 769px) {
+@media (min-width: 1366px) {
   .runner .panel {
     position: relative;
     overflow: hidden;
@@ -222,7 +222,7 @@
 .runner.qmode .rail { display: none; }
 
 /* ---------- mobile: bottom sheet ---------- */
-@media (max-width: 768px) {
+@media (max-width: 1365px) {
   .runner { flex-direction: column; }
   .runner .panel {
     width: 100%; border-left: 0; border-top: 1px solid var(--chrome-border);
@@ -288,7 +288,7 @@
   .runner.qmode .panel-body,
   .runner.qmode .panel-foot { opacity: 1; pointer-events: auto; }
 }
-@media (min-width: 769px) {
+@media (min-width: 1366px) {
   .runner .m-progress { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
