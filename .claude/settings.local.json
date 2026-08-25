@@ -106,7 +106,8 @@
       "Bash(python3 -c \"import json,sys; c=json.load\\(sys.stdin\\)[0]['config']; print\\({k:v for k,v in c.items\\(\\) if k!='screener'}\\)\")",
       "Bash(git commit -m 'Screen recording: flush a chunk at each task boundary so abandoned sessions keep footage *)",
       "Bash(curl -s -L -m 20 \"https://garchen-archive-admin-staging-lbsje.ondigitalocean.app/events/player-test-history-of-the-copper-colored-mountain-gyaling-horn-melody-single-session-event/history-of-the-copper-colored-mountain-gyaling-horn-melody?interpretation=1\")",
-      "Bash(git commit -m 'Replay: mute reconstructed media so recorded play events can run *)"
+      "Bash(git commit -m 'Replay: mute reconstructed media so recorded play events can run *)",
+      "Bash(git commit -m 'Participant code: text screener step, shown on sessions and in CSV *)"
     ]
   }
 }

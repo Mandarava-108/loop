@@ -43,7 +43,11 @@ type Phase =
 export type ScreenerStep = {
   id: string;
   label: string;
-  options: string[];
+  input?: "text"; // free-text step (e.g. participant code) instead of choices
+  hint?: string;
+  placeholder?: string;
+  optional?: boolean;
+  options?: string[];
   multi?: boolean;
   min?: number;
   exclusive?: string; // option that deselects all others (and vice versa)
@@ -101,6 +105,7 @@ export default function Runner({
   }, [test.config]);
   const [screenerIndex, setScreenerIndex] = useState(0);
   const [screenerSelected, setScreenerSelected] = useState<string[]>([]);
+  const [screenerText, setScreenerText] = useState("");
   const [screenedOutMessage, setScreenedOutMessage] = useState("");
   const [consentError, setConsentError] = useState(false);
   const requireRecording = test.config?.REQUIRE_RECORDING === true;
@@ -533,11 +538,15 @@ export default function Runner({
 
   async function screenerContinue() {
     const step = screenerSteps[screenerIndex];
-    screenerAnswersRef.current[step.id] = step.multi
-      ? screenerSelected
-      : screenerSelected[0];
+    screenerAnswersRef.current[step.id] =
+      step.input === "text"
+        ? screenerText.trim()
+        : step.multi
+          ? screenerSelected
+          : screenerSelected[0];
 
     if (
+      step.input !== "text" &&
       step.pass_if_any &&
       !screenerSelected.some((o) => step.pass_if_any!.includes(o))
     ) {
@@ -568,6 +577,7 @@ export default function Runner({
     } else {
       setScreenerIndex(screenerIndex + 1);
       setScreenerSelected([]);
+      setScreenerText("");
     }
   }
 
@@ -880,20 +890,37 @@ export default function Runner({
                 Question {screenerIndex + 1} of {screenerSteps.length}
               </div>
               <div className="task-title">{screenerStep.label}</div>
-              {screenerStep.multi && (
-                <div className="q-hint">Select all that apply</div>
+              {screenerStep.hint ? (
+                <div className="q-hint">{screenerStep.hint}</div>
+              ) : (
+                screenerStep.multi && (
+                  <div className="q-hint">Select all that apply</div>
+                )
               )}
-              <div className="choice-list">
-                {screenerStep.options.map((opt) => (
-                  <button
-                    key={opt}
-                    aria-pressed={screenerSelected.includes(opt)}
-                    onClick={() => toggleScreenerOption(opt)}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
+              {screenerStep.input === "text" ? (
+                <div className="answer">
+                  <input
+                    type="text"
+                    className="text-answer"
+                    placeholder={screenerStep.placeholder ?? "Type here…"}
+                    value={screenerText}
+                    onChange={(e) => setScreenerText(e.target.value)}
+                    autoComplete="off"
+                  />
+                </div>
+              ) : (
+                <div className="choice-list">
+                  {(screenerStep.options ?? []).map((opt) => (
+                    <button
+                      key={opt}
+                      aria-pressed={screenerSelected.includes(opt)}
+                      onClick={() => toggleScreenerOption(opt)}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              )}
             </>
           )}
 
@@ -1101,7 +1128,9 @@ export default function Runner({
               className="btn"
               disabled={
                 submitting ||
-                screenerSelected.length < (screenerStep.min ?? 1)
+                (screenerStep.input === "text"
+                  ? !screenerStep.optional && screenerText.trim().length === 0
+                  : screenerSelected.length < (screenerStep.min ?? 1))
               }
               onClick={() => void screenerContinue()}
             >

@@ -199,6 +199,7 @@ export default async function ResponsesPage({
   const header: string[] = [
     "session_id",
     "session_started_at",
+    "participant_code",
     "device",
     "languages",
     "age_range",
@@ -209,6 +210,7 @@ export default async function ResponsesPage({
     const s = screenerById.get(sessionId);
     const a = s?.answers ?? {};
     return [
+      str(a.participant_code),
       str(a.device),
       Array.isArray(a.languages) ? a.languages.join("; ") : str(a.languages),
       str(a.age_range),
@@ -336,6 +338,17 @@ export default async function ResponsesPage({
                     className="border-t border-[#2B2F38] align-top"
                   >
                     <td className="whitespace-nowrap px-4 py-3">
+                      {(() => {
+                        const code = str(
+                          screenerById.get(s.sessionId)?.answers
+                            ?.participant_code
+                        );
+                        return code ? (
+                          <div className="text-sm font-semibold text-[#E8C468]">
+                            {code}
+                          </div>
+                        ) : null;
+                      })()}
                       <div className="font-mono text-xs text-[#9AA1AD]">
                         {s.sessionId.slice(0, 8)}
                       </div>
