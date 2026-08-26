@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import LocalTime from "../../local-time";
+import CommentToggle from "./comment-toggle";
 import DeleteSessionButton from "./delete-session-button";
 import ExportCsvButton from "./export-csv-button";
 import VerifiedSelect from "./verified-select";
@@ -483,9 +484,7 @@ export default async function ResponsesPage({
                                 </span>
                               )}
                               {extras.length > 0 && (
-                                <span className="ml-1 text-xs text-[#565D6B]">
-                                  💬
-                                </span>
+                                <CommentToggle items={extras} />
                               )}
                             </div>
                             {c.responseId && (

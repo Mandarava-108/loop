@@ -115,7 +115,8 @@
       "Bash(perl -0pi -e 's/const RESULT_LABELS: Record<string, string> = \\\\{\\\\n  success_claimed: \"did it\",\\\\n  gave_up: \"gave up\",\\\\n\\\\};\\\\n\\\\n//' \"app/dashboard/[testId]/responses/page.tsx\")",
       "Bash(git commit -m 'Responses table: check/cross icons for self-reported results *)",
       "Bash(git commit -m 'Responses: show device, age, languages, tags under the familiarity badge *)",
-      "Bash(git commit -m 'Hide redundant mobile tag in responses table *)"
+      "Bash(git commit -m 'Hide redundant mobile tag in responses table *)",
+      "Bash(git commit -m 'Clickable comment bubbles in responses table *)"
     ]
   }
 }
