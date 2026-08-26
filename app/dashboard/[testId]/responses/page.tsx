@@ -417,8 +417,15 @@ export default async function ResponsesPage({
                               {Array.isArray(a.languages)
                                 ? a.languages.join(", ")
                                 : str(a.languages)}
-                              {sc!.tags.length > 0 && (
-                                <> · {sc!.tags.join(", ")}</>
+                              {/* "mobile" just restates the device answer above */}
+                              {sc!.tags.filter((t) => t !== "mobile").length >
+                                0 && (
+                                <>
+                                  {" · "}
+                                  {sc!.tags
+                                    .filter((t) => t !== "mobile")
+                                    .join(", ")}
+                                </>
                               )}
                             </div>
                           </>
