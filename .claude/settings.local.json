@@ -111,7 +111,9 @@
       "Bash(git commit -m 'Back navigation where data-safe: screener steps, ease-to-task, follow-up-to-ease *)",
       "Bash(perl -pi -e 's/max-width: 768px/max-width: 1365px/g; s/min-width: 769px/min-width: 1366px/g' \"app/t/[testId]/runner.css\")",
       "Bash(git commit -m 'Bottom-sheet layout below 1366px so narrow desktops keep full site width *)",
-      "Bash(git commit -m 'Report page: per-task aggregates, participant breakdown, quotes, printable *)"
+      "Bash(git commit -m 'Report page: per-task aggregates, participant breakdown, quotes, printable *)",
+      "Bash(perl -0pi -e 's/const RESULT_LABELS: Record<string, string> = \\\\{\\\\n  success_claimed: \"did it\",\\\\n  gave_up: \"gave up\",\\\\n\\\\};\\\\n\\\\n//' \"app/dashboard/[testId]/responses/page.tsx\")",
+      "Bash(git commit -m 'Responses table: check/cross icons for self-reported results *)"
     ]
   }
 }

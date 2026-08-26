@@ -60,11 +60,6 @@ const CONSENT_LABELS: Record<SessionMeta["consent_status"], string> = {
   unsupported: "not supported",
 };
 
-const RESULT_LABELS: Record<string, string> = {
-  success_claimed: "did it",
-  gave_up: "gave up",
-};
-
 type ScreenerRow = {
   session_id: string;
   answers: Record<string, unknown>;
@@ -443,11 +438,16 @@ export default async function ResponsesPage({
                           <td key={i} className="px-4 py-3">
                             <div title={extras.join("\n") || undefined}>
                               <span
-                                className={
+                                className={`font-semibold ${
                                   gaveUp ? "text-[#F0605A]" : "text-[#4ECF9A]"
+                                }`}
+                                title={
+                                  gaveUp
+                                    ? "Gave up (self-reported)"
+                                    : "Did it (self-reported)"
                                 }
                               >
-                                {RESULT_LABELS[c.answer] ?? c.answer}
+                                {gaveUp ? "✗" : "✓"}
                               </span>
                               {typeof c.detail?.ease === "number" && (
                                 <span className="ml-1.5">
