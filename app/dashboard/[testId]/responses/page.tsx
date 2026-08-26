@@ -345,15 +345,22 @@ export default async function ResponsesPage({
                           screenerById.get(s.sessionId)?.answers
                             ?.participant_code
                         );
+                        // The internal id is only worth showing when there is
+                        // no code to identify the session by; it stays in the
+                        // CSV and on the code's hover either way.
                         return code ? (
-                          <div className="text-sm font-semibold text-[#E8C468]">
+                          <div
+                            className="text-sm font-semibold text-[#E8C468]"
+                            title={`Session ${s.sessionId}`}
+                          >
                             {code}
                           </div>
-                        ) : null;
+                        ) : (
+                          <div className="font-mono text-xs text-[#9AA1AD]">
+                            {s.sessionId.slice(0, 8)}
+                          </div>
+                        );
                       })()}
-                      <div className="font-mono text-xs text-[#9AA1AD]">
-                        {s.sessionId.slice(0, 8)}
-                      </div>
                       <div className="mt-0.5 text-xs text-[#9AA1AD]">
                         <LocalTime iso={s.startedAt} />
                       </div>
