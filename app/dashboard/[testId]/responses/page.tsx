@@ -399,13 +399,29 @@ export default async function ResponsesPage({
                         ]
                           .filter(Boolean)
                           .join("\n");
+                        const short = (v: string) =>
+                          v.replace("Desktop or laptop computer", "Desktop");
                         return (
-                          <span
-                            title={`${fam}\n\n${details}`}
-                            className={`inline-block rounded-full border px-2.5 py-1 text-xs font-medium ${badge.cls}`}
-                          >
-                            {badge.label}
-                          </span>
+                          <>
+                            <span
+                              title={`${fam}\n\n${details}`}
+                              className={`inline-block rounded-full border px-2.5 py-1 text-xs font-medium ${badge.cls}`}
+                            >
+                              {badge.label}
+                            </span>
+                            <div className="mt-1.5 text-xs leading-relaxed text-[#565D6B]">
+                              {[short(str(a.device)), str(a.age_range)]
+                                .filter(Boolean)
+                                .join(" · ")}
+                              <br />
+                              {Array.isArray(a.languages)
+                                ? a.languages.join(", ")
+                                : str(a.languages)}
+                              {sc!.tags.length > 0 && (
+                                <> · {sc!.tags.join(", ")}</>
+                              )}
+                            </div>
+                          </>
                         );
                       })()}
                     </td>
