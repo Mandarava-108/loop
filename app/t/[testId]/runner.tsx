@@ -666,7 +666,9 @@ export default function Runner({
   function selfReport(r: "success_claimed" | "gave_up") {
     setResult(r);
     reportedAtRef.current = Date.now();
-    setStage("rate");
+    // Giving up IS the difficulty signal — skip the ease rating and go
+    // straight to the optional "what got in the way?" explanation.
+    setStage(r === "gave_up" ? "followup" : "rate");
   }
 
   async function finalizeUsability(finalResult: string, finalFollowup: string) {
@@ -1239,7 +1241,16 @@ export default function Runner({
                 <button
                   className="btn ghost"
                   disabled={submitting}
-                  onClick={() => setStage("rate")}
+                  onClick={() => {
+                    // Gave-ups arrived here from the task itself (no rating
+                    // step) — back means back to the task.
+                    if (result === "gave_up") {
+                      setResult(null);
+                      setStage("work");
+                    } else {
+                      setStage("rate");
+                    }
+                  }}
                 >
                   ← Back
                 </button>
