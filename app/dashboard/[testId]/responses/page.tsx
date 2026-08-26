@@ -270,6 +270,12 @@ export default async function ResponsesPage({
           <Link href="/dashboard" className="hover:text-[#EDEFF3]">
             ← Back to tests
           </Link>
+          <Link
+            href={`/dashboard/${testId}/report`}
+            className="hover:text-[#EDEFF3]"
+          >
+            View report
+          </Link>
         </header>
 
         <div className="mb-6 flex flex-wrap items-center gap-3">

@@ -85,6 +85,12 @@ export default async function DashboardPage() {
                       Responses
                     </Link>
                     <Link
+                      href={`/dashboard/${t.id}/report`}
+                      className="rounded-[9px] border border-[#2B2F38] px-3 py-2 text-sm text-[#9AA1AD] transition hover:border-[#7C6FF0] hover:text-[#EDEFF3]"
+                    >
+                      Report
+                    </Link>
+                    <Link
                       href={`/dashboard/${t.id}`}
                       className="rounded-[9px] border border-[#2B2F38] px-3 py-2 text-sm text-[#9AA1AD] transition hover:border-[#7C6FF0] hover:text-[#EDEFF3]"
                     >
