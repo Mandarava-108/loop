@@ -119,7 +119,12 @@
       "Bash(git commit -m 'Clickable comment bubbles in responses table *)",
       "Bash(git commit -m 'Session id hidden when a participant code identifies the row *)",
       "Bash(git commit -m 'Gave-up skips the ease rating, goes straight to the explanation *)",
-      "Bash(git commit -m 'Screener identity: name/email replace participant code; tech comfort and UX-background in views and CSV *)"
+      "Bash(git commit -m 'Screener identity: name/email replace participant code; tech comfort and UX-background in views and CSV *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} in %{time_total}s\\\\n\" -m 15 \"https://oqisnjggirhhueqzjntq.supabase.co/rest/v1/tests?select=id&limit=1\" -H \"apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} in %{time_total}s\\\\n\" -m 15 \"https://oqisnjggirhhueqzjntq.supabase.co/auth/v1/health\" -H \"apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} in %{time_total}s\\\\n\" -m 30 \"https://melong.vercel.app/login\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} in %{time_total}s\\\\n\" -m 30 \"https://melong.vercel.app/dashboard\")",
+      "Bash(git commit -m 'Middleware auth check capped at 6s — degrade to login instead of 504 *)"
     ]
   }
 }
