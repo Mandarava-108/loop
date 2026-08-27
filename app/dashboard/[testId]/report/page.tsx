@@ -269,6 +269,8 @@ export default async function ReportPage({
             ["Familiarity", countBy("familiarity").map(([v, n]) => [familiarityShort(v), n] as [string, number])],
             ["Device", countBy("device")],
             ["Age", countBy("age_range")],
+            ["Tech comfort", countBy("tech_comfort")],
+            ["UX / project background", countBy("involvement")],
           ].map(([label, rows]) => (
             <div
               key={label as string}

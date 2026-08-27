@@ -118,7 +118,8 @@
       "Bash(git commit -m 'Hide redundant mobile tag in responses table *)",
       "Bash(git commit -m 'Clickable comment bubbles in responses table *)",
       "Bash(git commit -m 'Session id hidden when a participant code identifies the row *)",
-      "Bash(git commit -m 'Gave-up skips the ease rating, goes straight to the explanation *)"
+      "Bash(git commit -m 'Gave-up skips the ease rating, goes straight to the explanation *)",
+      "Bash(git commit -m 'Screener identity: name/email replace participant code; tech comfort and UX-background in views and CSV *)"
     ]
   }
 }

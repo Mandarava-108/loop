@@ -195,10 +195,13 @@ export default async function ResponsesPage({
   const header: string[] = [
     "session_id",
     "session_started_at",
-    "participant_code",
+    "name",
+    "email",
+    "involvement",
     "device",
     "languages",
     "age_range",
+    "tech_comfort",
     "familiarity",
     "screener_tags",
   ];
@@ -206,10 +209,13 @@ export default async function ResponsesPage({
     const s = screenerById.get(sessionId);
     const a = s?.answers ?? {};
     return [
-      str(a.participant_code),
+      str(a.name) || str(a.participant_code),
+      str(a.email),
+      str(a.involvement),
       str(a.device),
       Array.isArray(a.languages) ? a.languages.join("; ") : str(a.languages),
       str(a.age_range),
+      str(a.tech_comfort),
       str(a.familiarity),
       (s?.tags ?? []).join("; "),
     ];
@@ -341,20 +347,27 @@ export default async function ResponsesPage({
                   >
                     <td className="whitespace-nowrap px-4 py-3">
                       {(() => {
-                        const code = str(
-                          screenerById.get(s.sessionId)?.answers
-                            ?.participant_code
-                        );
-                        // The internal id is only worth showing when there is
-                        // no code to identify the session by; it stays in the
-                        // CSV and on the code's hover either way.
-                        return code ? (
-                          <div
-                            className="text-sm font-semibold text-[#E8C468]"
-                            title={`Session ${s.sessionId}`}
-                          >
-                            {code}
-                          </div>
+                        const a =
+                          screenerById.get(s.sessionId)?.answers ?? {};
+                        const label =
+                          str(a.name) || str(a.participant_code);
+                        const email = str(a.email);
+                        // The internal id shows only for fully anonymous
+                        // sessions; it stays in the CSV either way.
+                        return label ? (
+                          <>
+                            <div
+                              className="text-sm font-semibold text-[#E8C468]"
+                              title={`Session ${s.sessionId}`}
+                            >
+                              {label}
+                            </div>
+                            {email && (
+                              <div className="text-xs text-[#9AA1AD]">
+                                {email}
+                              </div>
+                            )}
+                          </>
                         ) : (
                           <div className="font-mono text-xs text-[#9AA1AD]">
                             {s.sessionId.slice(0, 8)}
@@ -403,6 +416,10 @@ export default async function ResponsesPage({
                               : str(a.languages) || "?"
                           }`,
                           `Age: ${str(a.age_range) || "?"}`,
+                          str(a.tech_comfort) &&
+                            `Tech comfort: ${str(a.tech_comfort)}`,
+                          str(a.involvement) &&
+                            `UX/project background: ${str(a.involvement)}`,
                           sc!.tags.length ? `Tags: ${sc!.tags.join(", ")}` : "",
                         ]
                           .filter(Boolean)
