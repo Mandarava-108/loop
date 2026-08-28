@@ -62,17 +62,21 @@
 .runner .task-desc { font-size: 0.88rem; line-height: 1.55; color: var(--ink-dim); margin-bottom: 20px; }
 
 .runner .answer label { display: block; font-size: 0.8rem; color: var(--ink-dim); margin-bottom: 8px; }
+/* Text fields default to 16px: iOS zooms the page in — and never back out —
+   when a focused field's font is under 16px. Desktop trims them down again in
+   the min-width block at the end of this file, so a phone can never inherit a
+   sub-16px size by accident. */
 .runner textarea {
   width: 100%; min-height: 88px; resize: vertical;
   background: var(--chrome-raised); border: 1px solid var(--chrome-border);
-  border-radius: 10px; color: var(--ink); padding: 12px; font: inherit; font-size: 0.88rem; line-height: 1.5;
+  border-radius: 10px; color: var(--ink); padding: 12px; font: inherit; font-size: 16px; line-height: 1.5;
 }
 .runner textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
 
 .runner input.text-answer {
   width: 100%; height: 46px;
   background: var(--chrome-raised); border: 1px solid var(--chrome-border);
-  border-radius: 10px; color: var(--ink); padding: 0 12px; font: inherit; font-size: 0.88rem;
+  border-radius: 10px; color: var(--ink); padding: 0 12px; font: inherit; font-size: 16px;
 }
 .runner input.text-answer:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
 
@@ -271,16 +275,6 @@
   .runner .m-progress { height: 3px; background: var(--chrome-border); border-radius: 2px; overflow: hidden; margin-top: 10px; }
   .runner .m-progress div { height: 100%; background: var(--accent); width: 0%; transition: width 0.4s; }
 
-  /* iOS auto-zooms the page when a focused input's font is under 16px, and
-     never zooms back out — so keep every text field at 16px on mobile.
-     Media queries add no specificity, so these selectors must be at least as
-     specific as the desktop rules they override (.runner input.text-answer). */
-  .runner textarea,
-  .runner input,
-  .runner input.text-answer {
-    font-size: 16px;
-  }
-
   /* Question mode on mobile: a full-screen card, not a bottom sheet. */
   .runner.qmode .panel {
     position: static; height: 100dvh; max-height: none;
@@ -293,6 +287,9 @@
 }
 @media (min-width: 1366px) {
   .runner .m-progress { display: none; }
+  /* No focus-zoom on desktop, so text fields can match the panel's type scale. */
+  .runner textarea,
+  .runner input.text-answer { font-size: 0.88rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   .runner *, .runner { transition: none !important; animation: none !important; }
