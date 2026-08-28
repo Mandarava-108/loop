@@ -124,7 +124,8 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code} in %{time_total}s\\\\n\" -m 15 \"https://oqisnjggirhhueqzjntq.supabase.co/auth/v1/health\" -H \"apikey: sb_publishable_EzxF6fhJ8F-Z0rjI0dzfQg__326ATBX\")",
       "Bash(curl -s -o /dev/null -w \"%{http_code} in %{time_total}s\\\\n\" -m 30 \"https://melong.vercel.app/login\")",
       "Bash(curl -s -o /dev/null -w \"%{http_code} in %{time_total}s\\\\n\" -m 30 \"https://melong.vercel.app/dashboard\")",
-      "Bash(git commit -m 'Middleware auth check capped at 6s — degrade to login instead of 504 *)"
+      "Bash(git commit -m 'Middleware auth check capped at 6s — degrade to login instead of 504 *)",
+      "Bash(git commit -m 'Middleware fails open on auth timeout — RLS still guards data, researcher stays signed in *)"
     ]
   }
 }

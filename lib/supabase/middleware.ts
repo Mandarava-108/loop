@@ -32,6 +32,7 @@ export async function updateSession(request: NextRequest) {
   // the visitor as signed out and land them on /login rather than letting
   // the middleware time out into a 504.
   let user: unknown = null;
+  let authTimedOut = false;
   try {
     const result = await Promise.race([
       supabase.auth.getUser(),
@@ -41,12 +42,16 @@ export async function updateSession(request: NextRequest) {
     ]);
     user = result.data.user;
   } catch {
-    user = null;
+    // Slow auth service, not a definitive "signed out" — fail OPEN. Row-level
+    // security still guards every query, so letting the request through only
+    // risks showing an empty dashboard to a stranger during an outage,
+    // instead of kicking a signed-in researcher to /login.
+    authTimedOut = true;
   }
 
   const path = request.nextUrl.pathname;
 
-  if (path.startsWith("/dashboard") && !user) {
+  if (path.startsWith("/dashboard") && !user && !authTimedOut) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
