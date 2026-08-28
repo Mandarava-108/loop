@@ -271,10 +271,13 @@
   .runner .m-progress { height: 3px; background: var(--chrome-border); border-radius: 2px; overflow: hidden; margin-top: 10px; }
   .runner .m-progress div { height: 100%; background: var(--accent); width: 0%; transition: width 0.4s; }
 
-  /* iOS auto-zooms the page when a focused input's font is under 16px —
-     keep all text inputs at 16px on mobile so focus never zooms. */
+  /* iOS auto-zooms the page when a focused input's font is under 16px, and
+     never zooms back out — so keep every text field at 16px on mobile.
+     Media queries add no specificity, so these selectors must be at least as
+     specific as the desktop rules they override (.runner input.text-answer). */
   .runner textarea,
-  .runner input {
+  .runner input,
+  .runner input.text-answer {
     font-size: 16px;
   }
 
