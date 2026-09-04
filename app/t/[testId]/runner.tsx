@@ -11,6 +11,7 @@ export type TaskOptions = {
   fullscreen?: boolean; // render as a question card, site not visible
   single_continue?: boolean; // one Continue button instead of did-it/gave-up
   report_labels?: { done?: string; gave_up?: string }; // custom self-report labels
+  hint?: string; // aside under the description, set apart from the task copy
   required_text?: { label: string; min?: number; store?: string };
   confirm?: { label: string; options: string[]; store?: string };
   success_criteria?: string;
@@ -962,6 +963,9 @@ export default function Runner({
                   {task.description && (
                     <div className="task-desc">{task.description}</div>
                   )}
+                  {task.options?.hint && (
+                    <p className="task-hint">{task.options.hint}</p>
+                  )}
                   {task.options?.required_text && (
                     <div className="answer">
                       <label htmlFor="extraText">
@@ -1052,6 +1056,9 @@ export default function Runner({
               <div className="task-title">{task.prompt}</div>
               {task.description && (
                 <div className="task-desc">{task.description}</div>
+              )}
+              {task.options?.hint && (
+                <p className="task-hint">{task.options.hint}</p>
               )}
 
               {task.type === "rating" && (

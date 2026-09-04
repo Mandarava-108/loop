@@ -61,6 +61,17 @@
 .runner .task-title { font-size: 1.06rem; font-weight: 650; line-height: 1.35; margin-bottom: 8px; }
 .runner .task-desc { font-size: 0.88rem; line-height: 1.55; color: var(--ink-dim); margin-bottom: 20px; }
 
+/* Aside under the task copy — same voice as the description, but clearly not
+   part of the instruction: tinted panel with an accent rule down the side. */
+.runner .task-hint {
+  font-size: 0.82rem; line-height: 1.5; color: var(--ink-dim);
+  background: var(--accent-soft);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 12px;
+  margin: -10px 0 20px;
+}
+
 .runner .answer label { display: block; font-size: 0.8rem; color: var(--ink-dim); margin-bottom: 8px; }
 /* Text fields default to 16px: iOS zooms the page in — and never back out —
    when a focused field's font is under 16px. Desktop trims them down again in
